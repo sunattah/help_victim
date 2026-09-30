@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Victim Care</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap">
+<style>
+:root{--red:#D62828;--deep:#9D0208;--blush:#FFF0F0;--line:#F3C9C9;--ink:#3A1012;--white:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--white);color:var(--ink);font-family:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;line-height:1.5}
+#app{max-width:520px;margin:0 auto;min-height:100vh;padding-bottom:84px}
+header{background:var(--red);color:#fff;padding:18px 20px;display:flex;align-items:center;gap:10px}
+header svg{width:28px;height:28px;flex:none}
+header h1{margin:0;font-size:1.3rem;font-weight:800}
+main{padding:20px}
+h2{font-size:1.15rem;margin:0 0 6px}
+p.sub{margin:0 0 18px;color:#7a4a4c}
+.sos{display:block;margin:10px auto 26px;width:210px;height:210px;border-radius:50%;border:10px solid var(--blush);background:var(--red);color:#fff;font:800 2.6rem 'Nunito',sans-serif;cursor:pointer;box-shadow:0 0 0 0 rgba(214,40,40,.5);animation:pulse 2.4s infinite}
+.sos small{display:block;font-size:.85rem;font-weight:600}
+@keyframes pulse{70%{box-shadow:0 0 0 26px rgba(214,40,40,0)}100%{box-shadow:0 0 0 0 rgba(214,40,40,0)}}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{background:var(--blush);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.tile b{display:block;color:var(--deep)}
+.btn{display:block;width:100%;padding:14px;border-radius:12px;border:2px solid var(--red);background:var(--red);color:#fff;font:800 1rem 'Nunito',sans-serif;text-align:center;text-decoration:none;cursor:pointer;margin-top:10px}
+.btn.ghost{background:#fff;color:var(--red)}
+label{display:block;font-weight:600;margin:14px 0 6px}
+input[type=text],input[type=tel],textarea{width:100%;padding:12px;border:2px solid var(--line);border-radius:10px;font:inherit;color:inherit;background:#fff}
+input:focus,textarea:focus,button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--deep);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:10px 14px;border-radius:999px;border:2px solid var(--red);background:#fff;color:var(--red);font:600 .95rem 'Nunito',sans-serif;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--red);color:#fff}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.row input{width:22px;height:22px;accent-color:var(--red)}
+details{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+summary{font-weight:800;color:var(--deep);cursor:pointer}
+ol{margin:8px 0 0;padding-left:20px}
+.card{border-left:5px solid var(--red);background:var(--blush);padding:10px 14px;border-radius:0 10px 10px 0;margin-bottom:10px}
+.card small{color:#7a4a4c}
+nav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:2px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px)}
+nav div{display:flex;width:100%;max-width:520px}
+nav button{flex:1;padding:12px 4px;background:none;border:0;font:600 .8rem 'Nunito',sans-serif;color:#9a6a6c;cursor:pointer}
+nav button[aria-current=page]{color:var(--red);font-weight:800;box-shadow:inset 0 3px var(--red)}
+nav svg{display:block;margin:0 auto 2px;width:22px;height:22px}
+#overlay{position:fixed;inset:0;background:var(--red);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;z-index:9}
+#overlay.on{display:flex}
+#overlay .big{font-size:6rem;font-weight:800;line-height:1}
+#overlay .btn{max-width:340px;background:#fff;color:var(--red);border-color:#fff}
+#overlay .btn.ghost{background:transparent;color:#fff}
+@media (prefers-reduced-motion:reduce){.sos{animation:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M10 2h4v8h8v4h-8v8h-4v-8H2v-4h8z"/></svg>
+    <h1>Victim Care</h1>
+  </header>
+  <main id="view"></main>
+</div>
+<div id="overlay" role="alertdialog" aria-live="assertive"></div>
+<nav aria-label="Main"><div id="tabs"></div></nav>
+
+<script>
+const ICON={home:'M3 11l9-8 9 8v10h-6v-6H9v6H3z',report:'M12 2L1 21h22zM11 10h2v5h-2zm0 6h2v2h-2z',aid:'M10 2h4v8h8v4h-8v8h-4v-8H2v-4h8z',contacts:'M16 11a4 4 0 10-8 0 4 4 0 008 0zM4 21c0-4 4-6 8-6s8 2 8 6z',settings:'M12 8a4 4 0 100 8 4 4 0 000-8zM11 1h2l1 3 3 1 3-2 2 2-2 3 1 3 3 1v2l-3 1-1 3 2 3-2 2-3-2-3 1-1 3h-2l-1-3-3-1-3 2-2-2 2-3-1-3-3-1v-2l3-1 1-3-2-3 2-2 3 2 3-1z'};
+const TABS=[['home','Home'],['report','Report'],['aid','First aid'],['contacts','Contacts'],['settings','Settings']];
+const TYPES=['Accident','Medical','Assault','Fire','Other'];
+const AID=[
+['Heavy bleeding',['Press firmly on the wound with a clean cloth.','Keep pressing. Do not lift the cloth to check.','Raise the injured limb if you can.','Call for help now.']],
+['Burns',['Cool the burn under running water for 20 minutes.','Remove rings or tight items near the burn.','Cover loosely with a clean non-stick cover.','Do not use ice, butter or toothpaste.']],
+['Choking',['Ask them to cough. If they cannot, give 5 firm back blows.','Give 5 abdominal thrusts.','Repeat until the object comes out or help arrives.']],
+['Not breathing',['Call for help and ask for a defibrillator.','Push hard and fast in the centre of the chest, about twice per second.','Keep going until help takes over.']],
+['Broken bone',['Keep the person still.','Support the injured part in the position found.','Do not try to straighten it.','Get medical help.']]
+];
+let S={name:'',cname:'',contact:'',number:'112',loc:true,vib:true,reports:[]};
+try{Object.assign(S,JSON.parse(localStorage.getItem('vc')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('vc',JSON.stringify(S))}catch(e){}};
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let tab='home',rtype='Accident',timer=null;
+
+function nav(){
+  document.getElementById('tabs').innerHTML=TABS.map(([k,l])=>`<button data-t="${k}" ${k===tab?'aria-current="page"':''}><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="${ICON[k]}"/></svg>${l}</button>`).join('');
+}
+document.getElementById('tabs').onclick=e=>{const b=e.target.closest('button');if(b){tab=b.dataset.t;render()}};
+
+function render(){
+  nav();const v=document.getElementById('view');
+  if(tab==='home')v.innerHTML=`
+    <h2>${S.name?'Hi '+esc(S.name)+', do you need help?':'Do you need help?'}</h2>
+    <p class="sub">Press the button to send an emergency alert. You have 5 seconds to cancel.</p>
+    <button class="sos" id="sos">SOS<small>Press for help</small></button>
+    <div class="grid">
+      <button class="tile" data-go="report"><b>Report a problem</b>Say what happened</button>
+      <button class="tile" data-go="aid"><b>First aid</b>Steps you can follow now</button>
+      <button class="tile" data-go="contacts"><b>Contacts</b>Who we alert</button>
+      <button class="tile" data-go="settings"><b>Settings</b>Location and alerts</button>
+    </div>`;
+  if(tab==='report')v.innerHTML=`
+    <h2>Report a problem</h2><p class="sub">Tell us what is happening so help arrives prepared.</p>
+    <label>What kind of problem?</label>
+    <div class="chips">${TYPES.map(t=>`<button class="chip" aria-pressed="${t===rtype}" data-type="${t}">${t}</button>`).join('')}</div>
+    <label for="note">What happened?</label>
+    <textarea id="note" rows="4" placeholder="Where you are, who is hurt, anything that is dangerous"></textarea>
+    <button class="btn" id="send">Send report</button>
+    <h2 style="margin-top:28px">Past reports</h2>
+    ${S.reports.length?S.reports.map(r=>`<div class="card"><b>${esc(r.type)}</b><br>${esc(r.note||'No details')}<br><small>${esc(r.time)}</small></div>`).join(''):'<p class="sub">No reports yet. Reports you send will appear here.</p>'}`;
+  if(tab==='aid')v.innerHTML=`<h2>First aid</h2><p class="sub">Simple steps while you wait for help.</p>`+AID.map(([t,s])=>`<details><summary>${t}</summary><ol>${s.map(x=>`<li>${x}</li>`).join('')}</ol></details>`).join('');
+  if(tab==='contacts')v.innerHTML=`
+    <h2>Emergency contacts</h2><p class="sub">This person gets a text with your location when you send an alert.</p>
+    <label for="cn">Contact name</label><input type="text" id="cn" value="${esc(S.cname)}" autocomplete="off">
+    <label for="cp">Contact phone</label><input type="tel" id="cp" value="${esc(S.contact)}" placeholder="+234...">
+    <button class="btn" id="sc">Save contact</button>
+    <a class="btn ghost" href="tel:${esc(S.number)}">Call ${esc(S.number)} now</a>`;
+  if(tab==='settings')v.innerHTML=`
+    <h2>Settings</h2><p class="sub">Saved on this device only.</p>
+    <label for="nm">Your name</label><input type="text" id="nm" value="${esc(S.name)}">
+    <label for="en">Emergency number to call</label><input type="tel" id="en" value="${esc(S.number)}">
+    <div class="row"><span>Share my location in alerts</span><input type="checkbox" id="sl" ${S.loc?'checked':''}></div>
+    <div class="row"><span>Vibrate when alert is sent</span><input type="checkbox" id="sv" ${S.vib?'checked':''}></div>
+    <button class="btn" id="ss">Save settings</button>
+    <button class="btn ghost" id="cl">Clear past reports</button>`;
+}
+
+document.getElementById('view').addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.go){tab=t.dataset.go;render()}
+  if(t.id==='sos')countdown();
+  if(t.dataset.type){rtype=t.dataset.type;const n=document.getElementById('note').value;render();document.getElementById('note').value=n}
+  if(t.id==='send')dispatch(rtype,document.getElementById('note').value.trim());
+  if(t.id==='sc'){S.cname=document.getElementById('cn').value.trim();S.contact=document.getElementById('cp').value.trim();save();t.textContent='Saved'}
+  if(t.id==='ss'){S.name=document.getElementById('nm').value.trim();S.number=document.getElementById('en').value.trim()||'112';S.loc=document.getElementById('sl').checked;S.vib=document.getElementById('sv').checked;save();t.textContent='Saved'}
+  if(t.id==='cl'){S.reports=[];save();t.textContent='Cleared'}
+});
+
+const ov=document.getElementById('overlay');
+function countdown(){
+  let n=5;ov.classList.add('on');
+  const draw=()=>{ov.innerHTML=`<p>Sending alert in</p><div class="big">${n}</div><button class="btn" id="x">Cancel</button>`;document.getElementById('x').onclick=()=>{clearInterval(timer);ov.classList.remove('on')}};
+  draw();
+  timer=setInterval(()=>{n--;if(n<=0){clearInterval(timer);dispatch('SOS emergency','')}else draw()},1000);
+}
+function dispatch(type,note){
+  ov.classList.add('on');
+  ov.innerHTML='<p class="big" style="font-size:1.6rem">Getting your location...</p>';
+  const finish=pos=>{
+    const link=pos?`https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`:'location not shared';
+    const msg=`${S.name||'Someone'} needs help. ${type}. ${note?note+'. ':''}Location: ${link}`;
+    S.reports.unshift({type,note,time:new Date().toLocaleString()});S.reports=S.reports.slice(0,20);save();
+    if(S.vib&&navigator.vibrate)try{navigator.vibrate([200,100,200])}catch(e){}
+    ov.innerHTML=`<h2 style="font-size:1.8rem">Alert ready</h2><p>Finish sending it from your phone:</p>
+      <a class="btn" href="tel:${esc(S.number)}">Call ${esc(S.number)}</a>
+      ${S.contact?`<a class="btn" href="sms:${esc(S.contact)}?body=${encodeURIComponent(msg)}">Text ${esc(S.cname||'my contact')}</a>`:'<p>Add an emergency contact in Contacts to text them too.</p>'}
+      <button class="btn ghost" id="d">Close</button>`;
+    document.getElementById('d').onclick=()=>{ov.classList.remove('on');tab='home';render()};
+  };
+  if(S.loc&&navigator.geolocation)navigator.geolocation.getCurrentPosition(finish,()=>finish(null),{timeout:8000,enableHighAccuracy:true});
+  else finish(null);
+}
+render();
+</script>
+</body>
+</html>
