@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Support network">
+  <defs>
+    <linearGradient id="g" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#b23a48"/>
+      <stop offset="1" stop-color="#f0803c"/>
+    </linearGradient>
+    <radialGradient id="h" cx="0.5" cy="0.1" r="0.9">
+      <stop offset="0" stop-color="#fff3c4" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#g)"/>
+  <rect width="800" height="600" fill="url(#h)"/>
+  <circle cx="400" cy="120" r="90" fill="#fff3c4" opacity="0.35"/>
+  <g fill="#ffffff" opacity="0.9">
+    <g transform="translate(200 330)">
+      <circle cx="0" cy="-70" r="42"/>
+      <path d="M-70 90c0-40 31-70 70-70s70 30 70 70z"/>
+    </g>
+    <g transform="translate(400 290)">
+      <circle cx="0" cy="-80" r="48"/>
+      <path d="M-80 100c0-46 36-80 80-80s80 34 80 80z"/>
+    </g>
+    <g transform="translate(600 330)">
+      <circle cx="0" cy="-70" r="42"/>
+      <path d="M-70 90c0-40 31-70 70-70s70 30 70 70z"/>
+    </g>
+  </g>
+  <g stroke="#ffffff" stroke-width="12" stroke-linecap="round" opacity="0.7" fill="none">
+    <path d="M245 330c40-30 70-20 95-5"/>
+    <path d="M555 330c-40-30-70-20-95-5"/>
+  </g>
+</svg>

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="First aid kit">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f06060"/>
+      <stop offset="1" stop-color="#9d0208"/>
+    </linearGradient>
+    <radialGradient id="h" cx="0.7" cy="0.2" r="0.9">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#g)"/>
+  <rect width="800" height="600" fill="url(#h)"/>
+  <circle cx="640" cy="140" r="150" fill="#ffffff" opacity="0.08"/>
+  <g transform="translate(400 320)">
+    <rect x="-190" y="-100" width="380" height="230" rx="26" fill="#ffffff"/>
+    <rect x="-70" y="-150" width="140" height="60" rx="18" fill="#ffffff"/>
+    <rect x="-26" y="-160" width="52" height="80" rx="22" fill="#ffffff" opacity="0.75"/>
+    <g transform="translate(0 10)">
+      <rect x="-30" y="-95" width="60" height="190" rx="10" fill="#d62828"/>
+      <rect x="-95" y="-30" width="190" height="60" rx="10" fill="#d62828"/>
+    </g>
+  </g>
+  <g transform="translate(180 150) rotate(-18)">
+    <rect x="-30" y="-95" width="60" height="190" rx="20" fill="#ffe0b2"/>
+    <circle cx="0" cy="0" r="12" fill="#f59e0b" opacity="0.6"/>
+    <circle cx="0" cy="-60" r="10" fill="#f59e0b" opacity="0.5"/>
+    <circle cx="0" cy="60" r="10" fill="#f59e0b" opacity="0.5"/>
+  </g>
+</svg>

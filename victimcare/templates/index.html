@@ -1,512 +1,477 @@
 <!doctype html>
-<html lang="en"><head><script>window["__codeletBootstrap__"]=JSON.parse('{"A":"A","B":"20261013-04-e17deef","C":{"Abril Fatface":"YACgEZbkUVE,0","Albert Sans":"YAHO2HRfeh4,0","Alfa Slab One":"YACgEYS9sJU,0","Anton":"YACgEcYqQ-A,0","Archivo Black":"YACgEZulLoA,0","Archivo":"YAHO2-t-jNE,0","Arial":"YAGyDvJ_4Ts,0","Baloo 2":"YAHO2IcQUcM,0","Barlow Condensed":"YAFdJljEuFc,0","Barlow":"YAFdJsyuOPM,1","Bebas Neue":"YACgESME5ew,0","Bricolage Grotesque":"YAFyMcdwzpc,0","Canva Sans":"YAFdJjTk5UU,1","Caveat":"YALBs2ploWQ,0","Cinzel":"YACgEeV8bIQ,0","Cormorant Garamond":"YAFdJhX-538,0","Courier New":"YAGzXiGs0_8,0","Courier Prime":"YAD1aFjegN8,0","DM Sans":"YAD1aU3sLnI,0","DM Serif Display":"YAD1aYG82rc,0","Figtree":"YAHO2b-mV7A,0","Forum":"YACgEcnnqB4,0","Fraunces":"YAFdJpU7Kkk,0","Fredoka":"YACgEZml080,0","Georgia":"YAGzXkO0pEM,0","Hanken Grotesk":"YAHO2VB9G0I,0","Helvetica":"YAFcf7zkXN0,0","IBM Plex Mono":"YAFdJkmvhGI,0","IBM Plex Sans":"YAFdJgT0SHI,0","Impact":"YAFcfnjI7Vk,0","Instrument Sans":"YAHO2bKyaSQ,0","Instrument Serif":"YAHFeOnZNEk,0","Inter":"YAFdJvSyp_k,3","Italiana":"YAHO2Toik_w,0","Jacques Francois":"YAHO2a5g66Q,0","JetBrains Mono":"YAFdJksXcAk,0","Josefin Sans":"YAFdJjvw9Ps,0","Karla":"YAHO2V2NSXM,0","Lato":"YAFdJuFCnaw,0","Libre Baskerville":"YACgEUFdPdA,0","Libre Caslon Display":"YAHO2XhLmt0,0","Lobster":"YAD8SnSjSFI,0","Lora":"YACgEXvxf8Q,0","Manrope":"YAHO2b2feC4,0","Merriweather":"YACgEXvHxxs,0","Montserrat":"YAFdtQi73Xs,0","Noto Sans JP":"YAFdJiHXlcI,0","Noto Sans KR":"YAGsojZj-RQ,0","Nunito Sans":"YAFdtQJYB9w,1","Nunito":"YAFdJoNRMmU,1","Oleo Script":"YACgEQQ14jI,0","Oswald":"YACgEQY10lw,0","Outfit":"YAHO2nVlg14,0","Pacifico":"YADLjORQ1u4,0","Playfair Display":"YAFdJhem5V8,1","Plus Jakarta Sans":"YAHO2gdhi18,0","Poppins":"YAFdJjbTu24,1","Press Start 2P":"YAFyGr-8pmQ,0","Public Sans":"YAFdJj8NdaU,1","Quicksand":"YAFdJpYtCxE,1","Raleway":"YAFdJhmxbVQ,1","Roboto Slab":"YAFdJswIKAg,0","Rockwell":"YAFcfyVZnN0,0","Rye":"YACgEdQP21k,0","Sarabun":"YAFdJssSnME,0","Schibsted Grotesk":"YAHO2sWydRk,0","Segoe UI":"YAHNdRD1Klw,0","Source Sans 3":"YAG4lO1Mj10,0","Space Grotesk":"YAHO2sjPCSM,0","Space Mono":"YADW1-vpsoc,0","Spectral":"YAHO2rVUHIM,0","Times New Roman":"YAGzXW3gftg,0","Trebuchet MS":"YAFcfrglpVA,0","Ubuntu":"YACgERDU--Q,0","Verdana":"YAGzXTctYtQ,0","Work Sans":"YAGXhLOKv44,0","Yellowtail":"YACgEYG4kG4,0"}}');</script><script src="/_sdk/05db820ba1544614.telemetry_sdk.js" integrity="sha512-a7JzkQDDcioSXpM61nxTfeRW7PcxWQy5+BrhyeTFmQFsXJ+Gncm0y50u7fTA7qOPegFnRgqCfa0mGUOK1yjDWQ=="></script>
+<html lang="en" data-theme="{{.Theme}}">
+<head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="color-scheme" content="light">
+  <meta name="color-scheme" content="light dark">
   <title>Victim Care</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&amp;display=swap" rel="stylesheet">
-  <style>
-    :root { --red:#d62828; --deep:#9d0208; --blush:#fff0f0; --line:#f3c9c9; --ink:#3a1012; }
-    * { box-sizing:border-box; }
-    body { margin:0; width:100%; color:var(--ink); font-family:'Nunito',sans-serif; line-height:1.5; }
-    button,input,textarea { font:inherit; }
-    button { cursor:pointer; }
-    button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible {
-      outline:3px solid #611014; outline-offset:3px;
-    }
-    .app-shell { width:100%; min-height:calc(100 * min(var(--vh, 1vh), 1vh)); }
-    .brand-header { background:var(--red); color:white; }
-    .header-inner { max-width:1100px; margin:auto; padding:14px 22px; display:flex; align-items:center; gap:12px; min-height:74px; }
-    .brand-mark { width:28px; height:28px; flex:none; fill:white; }
-    .brand-title { margin:0; line-height:1.1; }
-    .header-actions { display:flex; align-items:center; gap:10px; margin-left:auto; }
-    .resize-controls { display:flex; align-items:center; gap:7px; padding:6px 8px; border:1px solid #ffffffb0; border-radius:10px; background:#ffffff18; }
-    .resize-controls label { margin:0; color:white; font-size:12px; font-weight:800; white-space:nowrap; }
-    .resize-controls input { width:88px; accent-color:white; }
-    .resize-reset { border:1px solid #ffffffb0; border-radius:8px; padding:5px 8px; background:transparent; color:white; font-weight:800; white-space:nowrap; }
-    .create-button { border:2px solid white; border-radius:11px; padding:8px 15px; background:#fff; color:var(--deep); font-weight:800; box-shadow:0 0 0 4px #ffffff32,0 0 18px #fff8; white-space:nowrap; }
-    .signout-button { background:transparent; color:white; border:1px solid #ffffffb0; border-radius:10px; padding:8px 12px; white-space:nowrap; }
-    .top-nav { background:white; border-bottom:2px solid var(--line); }
-    .nav-inner { max-width:1100px; margin:auto; display:flex; width:100%; }
-    .nav-inner button { flex:1; min-width:0; padding:12px 3px; border:0; background:transparent; color:#794448; font-weight:800; }
-    .nav-inner button[aria-current="page"] { color:var(--deep); background:var(--blush); box-shadow:inset 0 -3px var(--red); }
-    .main-inner { max-width:1100px; margin:auto; padding:26px 22px 54px; }
-    .welcome { display:grid; grid-template-columns:1fr 1fr; overflow:hidden; border:1px solid var(--line); border-radius:22px; background:var(--blush); box-shadow:0 16px 36px #57212412; }
-    .welcome-image { display:block; width:100%; height:100%; min-height:330px; max-height:460px; object-fit:cover; }
-    .welcome-copy { padding:clamp(24px,4vw,50px); display:flex; flex-direction:column; justify-content:center; }
-    .eyebrow { margin:0 0 12px; color:var(--deep); font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
-    .welcome-copy h2 { margin:0 0 14px; line-height:1.15; }
-    .muted { color:#75494b; }
-    .action-row { display:flex; flex-wrap:wrap; gap:12px; margin-top:22px; }
-    .action-row .action { flex:1 1 130px; }
-    .action { border:2px solid var(--red); background:var(--red); color:white; padding:11px 18px; border-radius:11px; font-weight:800; text-align:center; }
-    .action.outline { background:white; color:var(--deep); }
-    .form-panel,.content-panel { max-width:760px; margin:0 auto; }
-    .form-panel { background:var(--blush); border:1px solid var(--line); border-radius:18px; padding:clamp(22px,4vw,38px); }
-    h2 { margin:0 0 8px; }
-    h3 { margin:24px 0 12px; }
-    label { display:block; font-weight:800; margin:17px 0 6px; }
-    input[type="text"],input[type="email"],input[type="tel"],input[type="password"],textarea {
-      display:block; width:100%; border:2px solid var(--line); border-radius:10px; background:white; padding:11px 13px; color:var(--ink);
-    }
-    .password-field { display:flex; align-items:stretch; gap:8px; }
-    .password-field input { flex:1; min-width:0; }
-    .password-toggle { border:2px solid var(--red); border-radius:10px; background:white; color:var(--deep); padding:0 12px; font-weight:800; cursor:pointer; }
-    .field-error { color:var(--deep); font-weight:800; min-height:24px; margin:8px 0; }
-    .form-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:15px; }
-    .form-actions button { flex:1 1 160px; }
-    .intro-card { background:var(--blush); border-left:5px solid var(--red); padding:20px 24px; border-radius:0 14px 14px 0; margin-bottom:23px; }
-    .intro-card p { margin:6px 0 0; }
-    .sos { width:150px; height:150px; border-radius:50%; border:9px solid var(--blush); background:var(--red); color:white; display:block; margin:20px auto 28px; font-weight:800; box-shadow:0 0 0 0 #d6282860; animation:pulse 2.4s infinite; }
-    .sos small { display:block; font-weight:600; }
-    @keyframes pulse { 70% { box-shadow:0 0 0 22px #d6282800; } }
-    .tile-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
-    .tile { border:1px solid var(--line); border-radius:14px; background:var(--blush); padding:17px; text-align:left; color:var(--ink); }
-    .tile strong { display:block; color:var(--deep); }
-    .chips { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 18px; }
-    .chip { border:2px solid var(--red); color:var(--deep); background:white; border-radius:99px; padding:8px 13px; font-weight:800; }
-    .chip[aria-pressed="true"] { background:var(--red); color:white; }
-    .wide { width:100%; margin-top:14px; }
-    .report-card { background:var(--blush); border-left:5px solid var(--red); padding:11px 14px; margin:10px 0; border-radius:0 10px 10px 0; overflow-wrap:anywhere; }
-    details { border:1px solid var(--line); border-radius:12px; padding:12px 15px; margin:10px 0; }
-    summary { cursor:pointer; font-weight:800; color:var(--deep); }
-    ol { padding-left:22px; }
-    .setting-row { display:flex; align-items:center; justify-content:space-between; gap:14px; border-bottom:1px solid var(--line); padding:9px 0; }
-    .setting-row label { margin:0; }
-    .setting-row input { width:22px; height:22px; accent-color:var(--red); }
-    .status { min-height:24px; color:var(--deep); font-weight:800; }
-    .alert-overlay { position:fixed; inset:0; z-index:20; background:var(--red); color:white; display:flex; align-items:center; justify-content:center; padding:24px; text-align:center; }
-    .alert-inner { width:min(100%,400px); }
-    .alert-count { font-size:96px; line-height:1; font-weight:800; }
-    .alert-overlay .action { display:block; width:100%; margin-top:12px; background:white; color:var(--deep); border-color:white; text-decoration:none; }
-    .alert-overlay .action.outline { background:transparent; color:white; }
-    [hidden] { display:none !important; }
-    @media(max-width:650px) {
-      .welcome { grid-template-columns:1fr; }
-      .welcome-image { height:210px; min-height:0; }
-      .header-inner { padding:12px 14px; gap:8px; }
-      .header-actions { gap:6px; }
-      .create-button,.signout-button { padding:7px 9px; }
-      .resize-controls { order:3; width:100%; justify-content:center; }
-      .resize-controls input { flex:1; max-width:180px; }
-      .main-inner { padding:20px 15px 42px; }
-      .nav-inner button { font-size:12px; padding:11px 2px; }
-    }
-    @media(max-width:365px) {
-      .brand-mark { width:22px; height:22px; }
-      .nav-inner button { font-size:10px; }
-      .tile-grid { grid-template-columns:1fr; }
-    }
-    @media(prefers-reduced-motion:reduce) { .sos { animation:none; } }
-  </style>
-  <script src="https://cdn.tailwindcss.com/3.4.17" type="text/javascript"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lucide@0.577.0/dist/umd/lucide.min.js" type="text/javascript"></script>
-  <script src="/_sdk/570d53629f0b998d.data_sdk.js" type="text/javascript" integrity="sha512-JEN39+V+Nvv9ZZOVS8vNk1iA9ErZJHTdgOw9KzPuMiK7m0I+KPEr/wmTnCFIQVsDjCZgJWfGnFi1IQh2Io2qyA=="></script>
-  <script src="/_sdk/436edb4ed2a23f63.editing_sdk.js" type="text/javascript" integrity="sha512-eoa+TIswQfRWHNxDCBo3gFMWQv4guhxR8ijesoX484mbq829oRd+K0jVEzPbkgmTFRlpvrjhzJyXMMJkxWP4Zw=="></script>
-  <script src="/_sdk/f195026a424c1f85.resizing_sdk.js" type="text/javascript" integrity="sha512-8On4Z+AXh1abEzZJ9Dbn9wOvFg+k1LsAaAzKGQ7LlfgXajZ9xEmZaZ1QVzv0AWhCZtCsEpWSOG9DgLri06TS7A=="></script>
- </head>
- <body data-template-id="__page-root" style="background: rgb(255, 255, 255);">
-  <div id="app-shell" class="app-shell">
-   <header class="brand-header canva-header" data-template-id="app-header" style="background: rgb(214, 40, 40); color: rgb(255, 255, 255);">
-    <div class="header-inner">
-     <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2h4v8h8v4h-8v8h-4v-8H2v-4h8z"></path>
-     </svg>
-     <h1 class="brand-title canva-text" data-template-id="app-title" style="color: rgb(255, 255, 255); font-weight: 800; font-style: normal; font-size: 21px;">Victim Care</h1>
-     <div class="header-actions" id="signed-in-actions" hidden="">
-      <button type="button" id="create" class="create-button canva-button" data-template-id="create-button" style="background: rgb(255, 255, 255); color: rgb(157, 2, 8); font-weight: 800; font-style: normal; font-size: 16px;">＋ Create</button> <button type="button" id="signout" class="signout-button canva-button" data-template-id="signout-button" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Sign out</button>
-     </div>
-     <div class="resize-controls" aria-label="Resize app panel">
-      <label for="app-size" class="canva-text" data-template-id="panel-size-label" style="color: rgb(255, 255, 255); font-weight: 800; font-style: normal; font-size: 12px;">Panel size</label><input id="app-size" type="range" min="85" max="120" value="100" step="1" aria-valuemin="85" aria-valuemax="120" aria-valuenow="100" aria-label="Panel size percentage"><button type="button" id="reset-size" class="resize-reset canva-button" data-template-id="reset-size-button" style="color: rgb(255, 255, 255); font-weight: 800; font-style: normal; font-size: 12px;">Reset size</button>
-     </div>
-    </div>
-   </header>
-   <nav id="top-nav" class="top-nav canva-menu" data-template-id="main-navigation" aria-label="Main navigation" hidden="" style="background: rgb(255, 255, 255);">
-    <div class="nav-inner" id="tabs">
-     <button type="button" data-tab="home" class="canva-button" data-template-id="nav-home" style="color: rgb(121, 68, 72); font-weight: 400; font-style: normal; font-size: 16px;">Home</button> <button type="button" data-tab="report" class="canva-button" data-template-id="nav-report" style="color: rgb(121, 68, 72); font-weight: 400; font-style: normal; font-size: 16px;">Report</button> <button type="button" data-tab="aid" class="canva-button" data-template-id="nav-aid" style="color: rgb(121, 68, 72); font-weight: 400; font-style: normal; font-size: 16px;">First aid</button> <button type="button" data-tab="contacts" class="canva-button" data-template-id="nav-contacts" style="color: rgb(121, 68, 72); font-weight: 400; font-style: normal; font-size: 16px;">Contacts</button> <button type="button" data-tab="settings" class="canva-button" data-template-id="nav-settings" style="color: rgb(121, 68, 72); font-weight: 400; font-style: normal; font-size: 16px;">Settings</button>
-    </div>
-   </nav>
-   <main class="main-inner">
-    <section id="welcome" class="welcome canva-panel" data-template-id="welcome-panel" aria-labelledby="welcome-title" style="background: rgb(255, 240, 240);">
-     <img class="welcome-image canva-image" data-template-id="hero-image" loading="lazy" src="https://images.pexels.com/photos/8942736/pexels-photo-8942736.jpeg" alt="Two paramedics attend to a patient, providing emergency medical assistance.">
-     <div class="welcome-copy">
-      <p class="eyebrow canva-text" data-template-id="welcome-eyebrow" style="color: rgb(157, 2, 8); font-weight: 800; font-style: normal; font-size: 16px;">HELP STARTS HERE</p>
-      <h2 id="welcome-title" class="canva-text" data-template-id="welcome-title" style="color: rgb(58, 16, 18); font-weight: 800; font-style: normal; font-size: 36px;">Care when it matters most.</h2>
-      <p class="muted canva-text" data-template-id="welcome-description" style="color: rgb(117, 73, 75); font-weight: 400; font-style: normal; font-size: 16px;">Keep first-aid guidance, emergency contacts, and your next steps close at hand.</p>
-      <div class="action-row">
-       <button id="open-login" type="button" class="action canva-button" data-template-id="login-button" style="background: rgb(214, 40, 40); color: rgb(255, 255, 255); font-weight: 800; font-style: normal; font-size: 16px;">Log in</button> <button id="open-signup" type="button" class="action outline canva-button" data-template-id="signup-button" style="background: rgb(255, 255, 255); color: rgb(157, 2, 8); font-weight: 800; font-style: normal; font-size: 16px;">Sign up</button>
-      </div>
-      <p class="muted canva-text" data-template-id="prototype-note" style="color: rgb(117, 73, 75); font-weight: 400; font-style: normal; font-size: 13px;">Interactive prototype — no account or password is required.</p>
-     </div>
-    </section>
-    <section id="auth-panel" class="form-panel canva-panel" data-template-id="auth-panel" hidden="" style="background: rgb(255, 240, 240);">
-     <div id="login-head">
-      <h2 class="canva-text" data-template-id="login-title" style="font-weight: 800; font-style: normal; font-size: 24px;">Log in to the prototype</h2>
-      <p class="muted canva-text" data-template-id="login-description" style="color: rgb(117, 73, 75); font-weight: 400; font-style: normal; font-size: 16px;">Enter a name and email to preview the signed-in experience. This does not authenticate an account.</p>
-     </div>
-     <div id="signup-head" hidden="">
-      <h2 class="canva-text" data-template-id="signup-title" style="font-weight: 800; font-style: normal; font-size: 24px;">Sign up for a preview</h2>
-      <p class="muted canva-text" data-template-id="signup-description" style="color: rgb(117, 73, 75); font-weight: 400; font-style: normal; font-size: 16px;">Enter your details to explore Victim Care. No account is created and passwords are not stored.</p>
-     </div>
-     <form id="prototype-form" novalidate="">
-      <div id="login-fields">
-       <label for="prototype-name" class="canva-text" data-template-id="auth-name-label" style="font-weight: 800; font-style: normal; font-size: 16px;">Your name</label> <input id="prototype-name" type="text" autocomplete="name" required="" maxlength="80" aria-describedby="auth-error"> <label for="prototype-email" class="canva-text" data-template-id="auth-email-label" style="font-weight: 800; font-style: normal; font-size: 16px;">Email address</label> <input id="prototype-email" type="email" autocomplete="email" required="" maxlength="160" aria-describedby="auth-error">
-      </div>
-      <div id="signup-fields" hidden="">
-       <label for="signup-first-name" class="canva-text" data-template-id="signup-first-name-label" style="font-weight: 800; font-style: normal; font-size: 16px;">First name</label> <input id="signup-first-name" type="text" autocomplete="given-name" required="" maxlength="80" aria-describedby="auth-error"> <label for="signup-second-name" class="canva-text" data-template-id="signup-second-name-label" style="font-weight: 800; font-style: normal; font-size: 16px;">Second name</label> <input id="signup-second-name" type="text" autocomplete="family-name" required="" maxlength="80" aria-describedby="auth-error"> <label for="signup-email" class="canva-text" data-template-id="signup-email-label" style="font-weight: 800; font-style: normal; font-size: 16px;">Email address</label> <input id="signup-email" type="email" autocomplete="email" required="" maxlength="160" aria-describedby="auth-error"> <label for="signup-state" class="canva-text" data-template-id="signup-state-label" style="font-weight: 800; font-style: normal; font-size: 16px;">State of residence</label> <input id="signup-state" type="text" autocomplete="address-level1" required="" maxlength="80" aria-describedby="auth-error"> <label for="signup-nation" class="canva-text" data-template-id="signup-nation-label" style="font-weight: 800; font-style: normal; font-size: 16px;">Nation of origin</label> <input id="signup-nation" type="text" autocomplete="country-name" placeholder="Enter your nation" required="" maxlength="80" aria-describedby="auth-error"> <label for="signup-password" class="canva-text" data-template-id="signup-password-label" style="font-weight: 800; font-style: normal; font-size: 16px;">Password</label>
-       <div class="password-field">
-        <input id="signup-password" type="password" autocomplete="new-password" required="" minlength="8" maxlength="128" aria-describedby="auth-error"><button type="button" class="password-toggle" data-password-target="signup-password" data-template-id="show-password-button" style="color: rgb(157, 2, 8); font-weight: 800; font-style: normal; font-size: 16px;">Show</button>
-       </div><label for="signup-confirm-password" class="canva-text" data-template-id="signup-confirm-password-label" style="font-weight: 800; font-style: normal; font-size: 16px;">Confirm password</label>
-       <div class="password-field">
-        <input id="signup-confirm-password" type="password" autocomplete="new-password" required="" minlength="8" maxlength="128" aria-describedby="auth-error"><button type="button" class="password-toggle" data-password-target="signup-confirm-password" data-template-id="show-confirm-password-button" style="color: rgb(157, 2, 8); font-weight: 800; font-style: normal; font-size: 16px;">Show</button>
-       </div>
-      </div>
-      <p id="auth-error" class="field-error" role="alert"></p>
-      <div class="form-actions">
-       <button type="submit" id="complete-login" class="action canva-button" data-template-id="complete-login" style="background: rgb(214, 40, 40); color: rgb(255, 255, 255); font-weight: 800; font-style: normal; font-size: 16px;">Continue to home</button> <button type="submit" id="complete-signup" class="action canva-button" data-template-id="complete-signup" hidden="" style="background: rgb(214, 40, 40); color: rgb(255, 255, 255); font-weight: 800; font-style: normal; font-size: 16px;">Explore Victim Care</button> <button type="button" id="back-to-welcome" class="action outline canva-button" data-template-id="back-button" style="background: rgb(255, 255, 255); color: rgb(157, 2, 8); font-weight: 400; font-style: normal; font-size: 16px;">Back to welcome</button>
-      </div>
-     </form>
-    </section>
-    <section id="signed-in-view" class="content-panel" hidden="" aria-live="polite">
-     <section id="home-view">
-      <div class="intro-card canva-card" data-template-id="home-intro" style="background: rgb(255, 240, 240);">
-       <h2 class="canva-text" data-template-id="home-title" style="font-weight: 800; font-style: normal; font-size: 24px;">Do you need help?</h2>
-       <p class="muted canva-text" data-template-id="home-subtitle" style="color: rgb(117, 73, 75); font-weight: 400; font-style: normal; font-size: 16px;">Press SOS to prepare an emergency alert. You have 5 seconds to cancel. Calls and texts must be sent from your device.</p>
-      </div><button id="sos" type="button" class="sos canva-button" data-template-id="sos-button" style="background: rgb(214, 40, 40); color: rgb(255, 255, 255); font-weight: 800;"> <span class="canva-text" data-template-id="sos-label" style="color: rgb(255, 255, 255); font-weight: 800; font-style: normal; font-size: 36px;">SOS</span> <small class="canva-text" data-template-id="sos-helper" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 13px;">Press for help</small> </button>
-      <div class="tile-grid">
-       <button type="button" data-go="report" class="tile canva-card" data-template-id="tile-report" style="background: rgb(255, 240, 240);"><strong class="canva-text" data-template-id="tile-report-title" style="color: rgb(157, 2, 8); font-weight: 800; font-style: normal; font-size: 16px;">Report a problem</strong><span class="canva-text" data-template-id="tile-report-description" style="font-weight: 400; font-style: normal; font-size: 16px;">Say what happened</span></button> <button type="button" data-go="aid" class="tile canva-card" data-template-id="tile-aid" style="background: rgb(255, 240, 240);"><strong class="canva-text" data-template-id="tile-aid-title" style="color: rgb(157, 2, 8); font-weight: 800; font-style: normal; font-size: 16px;">First aid</strong><span class="canva-text" data-template-id="tile-aid-description" style="font-weight: 400; font-style: normal; font-size: 16px;">Steps you can follow now</span></button> <button type="button" data-go="contacts" class="tile canva-card" data-template-id="tile-contacts" style="background: rgb(255, 240, 240);"><strong class="canva-text" data-template-id="tile-contacts-title" style="color: rgb(157, 2, 8); font-weight: 800; font-style: normal; font-size: 16px;">Contacts</strong><span class="canva-text" data-template-id="tile-contacts-description" style="font-weight: 400; font-style: normal; font-size: 16px;">Who you can alert</span></button> <button type="button" data-go="settings" class="tile canva-card" data-template-id="tile-settings" style="background: rgb(255, 240, 240);"><strong class="canva-text" data-template-id="tile-settings-title" style="color: rgb(157, 2, 8); font-weight: 800; font-style: normal; font-size: 16px;">Settings</strong><span class="canva-text" data-template-id="tile-settings-description" style="font-weight: 400; font-style: normal; font-size: 16px;">Location and alerts</span></button>
-      </div>
-     </section>
-     <section id="report-view" hidden="">
-      <h2 class="canva-text" data-template-id="report-title" style="font-weight: 800; font-style: normal; font-size: 24px;">Report a problem</h2>
-      <p class="muted canva-text" data-template-id="report-subtitle" style="color: rgb(117, 73, 75); font-weight: 400; font-style: normal; font-size: 16px;">Describe the situation, then choose how to contact help from your device.</p>
-      <p class="canva-text" data-template-id="type-label" style="font-weight: 800; font-style: normal; font-size: 16px;">What kind of problem?</p>
-      <div class="chips" role="group" aria-label="Problem type">
-       <button type="button" data-type="Accident" class="chip canva-button" data-template-id="type-accident" style="background: rgb(255, 255, 255); color: rgb(157, 2, 8); font-weight: 400; font-style: normal; font-size: 16px;">Accident</button> <button type="button" data-type="Medical" class="chip canva-button" data-template-id="type-medical" style="background: rgb(255, 255, 255); color: rgb(157, 2, 8); font-weight: 400; font-style: normal; font-size: 16px;">Medical</button> <button type="button" data-type="Assault" class="chip canva-button" data-template-id="type-assault" style="background: rgb(255, 255, 255); color: rgb(157, 2, 8); font-weight: 400; font-style: normal; font-size: 16px;">Assault</button> <button type="button" data-type="Fire" class="chip canva-button" data-template-id="type-fire" style="background: rgb(255, 255, 255); color: rgb(157, 2, 8); font-weight: 400; font-style: normal; font-size: 16px;">Fire</button> <button type="button" data-type="Other" class="chip canva-button" data-template-id="type-other" style="background: rgb(255, 255, 255); color: rgb(157, 2, 8); font-weight: 400; font-style: normal; font-size: 16px;">Other</button>
-      </div><label for="note" class="canva-text" data-template-id="note-label" style="font-weight: 800; font-style: normal; font-size: 16px;">What happened?</label> <textarea id="note" rows="4" class="canva-input" data-template-id="note-input" style="font-weight: 400; font-style: normal; font-size: 16px;">Where you are, who is hurt, and anything dangerous nearby</textarea> <button type="button" id="send-report" class="action wide canva-button" data-template-id="send-report" style="background: rgb(214, 40, 40); color: rgb(255, 255, 255); font-weight: 800; font-style: normal; font-size: 16px;">Prepare alert</button>
-      <h3 class="canva-text" data-template-id="past-reports-title" style="font-weight: 800; font-style: normal; font-size: 19px;">Past reports</h3>
-      <div id="reports-list"></div>
-      <p id="reports-empty" class="muted canva-text" data-template-id="reports-empty" style="color: rgb(117, 73, 75); font-weight: 400; font-style: normal; font-size: 16px;">No reports yet. Reports prepared in this session will appear here.</p>
-     </section>
-     <section id="aid-view" hidden="">
-      <h2 class="canva-text" data-template-id="aid-title" style="font-weight: 800; font-style: normal; font-size: 24px;">First aid</h2>
-      <p class="muted canva-text" data-template-id="aid-subtitle" style="color: rgb(117, 73, 75); font-weight: 400; font-style: normal; font-size: 16px;">Simple steps while you wait for help.</p>
-      <details><summary class="canva-text" data-template-id="aid-bleeding-title" style="color: rgb(157, 2, 8); font-weight: 800; font-style: normal; font-size: 16px;">Heavy bleeding</summary>
-       <ol>
-        <li class="canva-text" data-template-id="aid-bleeding-1" style="font-weight: 400; font-style: normal; font-size: 16px;">Press firmly on the wound with a clean cloth.</li>
-        <li class="canva-text" data-template-id="aid-bleeding-2" style="font-weight: 400; font-style: normal; font-size: 16px;">Keep pressing. Do not lift the cloth to check.</li>
-        <li class="canva-text" data-template-id="aid-bleeding-3" style="font-weight: 400; font-style: normal; font-size: 16px;">Raise the injured limb if you can.</li>
-        <li class="canva-text" data-template-id="aid-bleeding-4" style="font-weight: 400; font-style: normal; font-size: 16px;">Call for help now.</li>
-       </ol>
-      </details>
-      <details><summary class="canva-text" data-template-id="aid-burns-title" style="color: rgb(157, 2, 8); font-weight: 800; font-style: normal; font-size: 16px;">Burns</summary>
-       <ol>
-        <li class="canva-text" data-template-id="aid-burns-1" style="font-weight: 400; font-style: normal; font-size: 16px;">Cool the burn under running water for 20 minutes.</li>
-        <li class="canva-text" data-template-id="aid-burns-2" style="font-weight: 400; font-style: normal; font-size: 16px;">Remove rings or tight items near the burn.</li>
-        <li class="canva-text" data-template-id="aid-burns-3" style="font-weight: 400; font-style: normal; font-size: 16px;">Cover loosely with a clean non-stick cover.</li>
-        <li class="canva-text" data-template-id="aid-burns-4" style="font-weight: 400; font-style: normal; font-size: 16px;">Do not use ice, butter or toothpaste.</li>
-       </ol>
-      </details>
-      <details><summary class="canva-text" data-template-id="aid-choking-title" style="color: rgb(157, 2, 8); font-weight: 800; font-style: normal; font-size: 16px;">Choking</summary>
-       <ol>
-        <li class="canva-text" data-template-id="aid-choking-1" style="font-weight: 400; font-style: normal; font-size: 16px;">Ask them to cough. If they cannot, give 5 firm back blows.</li>
-        <li class="canva-text" data-template-id="aid-choking-2" style="font-weight: 400; font-style: normal; font-size: 16px;">Give 5 abdominal thrusts.</li>
-        <li class="canva-text" data-template-id="aid-choking-3" style="font-weight: 400; font-style: normal; font-size: 16px;">Repeat until the object comes out or help arrives.</li>
-       </ol>
-      </details>
-      <details><summary class="canva-text" data-template-id="aid-breathing-title" style="color: rgb(157, 2, 8); font-weight: 800; font-style: normal; font-size: 16px;">Not breathing</summary>
-       <ol>
-        <li class="canva-text" data-template-id="aid-breathing-1" style="font-weight: 400; font-style: normal; font-size: 16px;">Call for help and ask for a defibrillator.</li>
-        <li class="canva-text" data-template-id="aid-breathing-2" style="font-weight: 400; font-style: normal; font-size: 16px;">Push hard and fast in the centre of the chest, about twice per second.</li>
-        <li class="canva-text" data-template-id="aid-breathing-3" style="font-weight: 400; font-style: normal; font-size: 16px;">Keep going until help takes over.</li>
-       </ol>
-      </details>
-      <details><summary class="canva-text" data-template-id="aid-bone-title" style="color: rgb(157, 2, 8); font-weight: 800; font-style: normal; font-size: 16px;">Broken bone</summary>
-       <ol>
-        <li class="canva-text" data-template-id="aid-bone-1" style="font-weight: 400; font-style: normal; font-size: 16px;">Keep the person still.</li>
-        <li class="canva-text" data-template-id="aid-bone-2" style="font-weight: 400; font-style: normal; font-size: 16px;">Support the injured part in the position found.</li>
-        <li class="canva-text" data-template-id="aid-bone-3" style="font-weight: 400; font-style: normal; font-size: 16px;">Do not try to straighten it.</li>
-        <li class="canva-text" data-template-id="aid-bone-4" style="font-weight: 400; font-style: normal; font-size: 16px;">Get medical help.</li>
-       </ol>
-      </details>
-     </section>
-     <section id="contacts-view" hidden="">
-      <h2 class="canva-text" data-template-id="contacts-title" style="font-weight: 800; font-style: normal; font-size: 24px;">Emergency contacts</h2>
-      <p class="muted canva-text" data-template-id="contacts-subtitle" style="color: rgb(117, 73, 75); font-weight: 400; font-style: normal; font-size: 16px;">Add someone you can text when preparing an alert. Nothing is sent automatically.</p>
-      <form id="contact-form">
-       <label for="contact-name" class="canva-text" data-template-id="contact-name-label" style="font-weight: 800; font-style: normal; font-size: 16px;">Contact name</label> <input id="contact-name" type="text" autocomplete="off"> <label for="contact-phone" class="canva-text" data-template-id="contact-phone-label" style="font-weight: 800; font-style: normal; font-size: 16px;">Contact phone</label> <input id="contact-phone" type="tel" class="canva-input" data-template-id="contact-phone-input" placeholder="+234..." style="font-weight: 400; font-style: normal; font-size: 16px;"> <button type="submit" class="action wide canva-button" data-template-id="save-contact" style="background: rgb(214, 40, 40); color: rgb(255, 255, 255); font-weight: 800; font-style: normal; font-size: 16px;">Update contact</button>
-      </form>
-      <p id="contact-status" class="status" role="status"></p><a id="emergency-call" class="action outline wide canva-button" data-template-id="emergency-call" href="tel:112" style="background: rgb(255, 255, 255); color: rgb(157, 2, 8); font-weight: 800; font-style: normal; font-size: 16px;">Call emergency services</a>
-     </section>
-     <section id="settings-view" hidden="">
-      <h2 class="canva-text" data-template-id="settings-title" style="font-weight: 800; font-style: normal; font-size: 24px;">Settings</h2>
-      <p class="muted canva-text" data-template-id="settings-subtitle" style="color: rgb(117, 73, 75); font-weight: 400; font-style: normal; font-size: 16px;">Changes last only while this prototype is open.</p>
-      <form id="settings-form">
-       <label for="setting-name" class="canva-text" data-template-id="name-label" style="font-weight: 800; font-style: normal; font-size: 16px;">Your name</label> <input id="setting-name" type="text"> <label for="setting-number" class="canva-text" data-template-id="number-label" style="font-weight: 800; font-style: normal; font-size: 16px;">Emergency number to call</label> <input id="setting-number" type="tel">
-       <div class="setting-row"><label for="setting-location" class="canva-text" data-template-id="location-label" style="font-weight: 800; font-style: normal; font-size: 16px;">Share my location in alerts</label><input id="setting-location" type="checkbox" checked="">
-       </div>
-       <div class="setting-row"><label for="setting-vibration" class="canva-text" data-template-id="vibration-label" style="font-weight: 800; font-style: normal; font-size: 16px;">Vibrate when alert is prepared</label><input id="setting-vibration" type="checkbox" checked="">
-       </div><button type="submit" class="action wide canva-button" data-template-id="save-settings" style="background: rgb(214, 40, 40); color: rgb(255, 255, 255); font-weight: 800; font-style: normal; font-size: 16px;">Update settings</button>
-      </form><button type="button" id="clear-reports" class="action outline wide canva-button" data-template-id="clear-reports" style="background: rgb(255, 255, 255); color: rgb(157, 2, 8); font-weight: 800; font-style: normal; font-size: 16px;">Clear past reports</button>
-      <p id="settings-status" class="status" role="status"></p>
-     </section>
-    </section>
-   </main>
-  </div>
-  <div id="overlay" class="alert-overlay canva-panel" data-template-id="alert-overlay" role="alertdialog" aria-modal="true" aria-label="Emergency alert" hidden="" style="background: rgb(214, 40, 40); color: rgb(255, 255, 255);">
-   <div class="alert-inner">
-    <div id="countdown-state" hidden="">
-     <p class="canva-text" data-template-id="countdown-label" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Preparing alert in</p>
-     <div id="countdown-number" class="alert-count" aria-live="assertive"></div><button id="cancel-alert" type="button" class="action canva-button" data-template-id="cancel-alert" style="background: rgb(255, 255, 255); color: rgb(157, 2, 8); font-weight: 800; font-style: normal; font-size: 16px;">Cancel</button>
-    </div>
-    <div id="location-state" hidden="">
-     <h2 class="canva-text" data-template-id="location-message" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 24px;">Getting your location…</h2>
-    </div>
-    <div id="ready-state" hidden="">
-     <h2 class="canva-text" data-template-id="ready-title" style="color: rgb(255, 255, 255); font-weight: 800; font-style: normal; font-size: 24px;">Alert ready</h2>
-     <p class="canva-text" data-template-id="ready-description" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Choose an option below to finish from your device. No message has been sent yet.</p><a id="call-link" class="action" href="tel:112"><span id="call-label"></span></a> <a id="text-link" class="action" hidden=""><span id="text-label"></span></a>
-     <p id="no-contact" class="canva-text" data-template-id="no-contact-message" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Add an emergency contact in Contacts to enable a text message.</p><button id="close-alert" type="button" class="action outline canva-button" data-template-id="close-alert" style="background: transparent; color: rgb(255, 255, 255); font-weight: 800; font-style: normal; font-size: 16px;">Close</button>
-    </div>
-   </div>
-  </div>
-  <template id="report-item-template">
-   <article class="report-card canva-card" data-template-id="report-item">
-    <strong class="report-type canva-text" data-template-id="report-item-type"></strong><br><span class="report-note canva-text" data-template-id="report-item-note"></span><br><small class="report-time canva-text" data-template-id="report-item-time"></small>
-   </article>
-  </template>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/app.css">
+  <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
   <script>
-    const state = { signedIn:false, name:'', email:'', contactName:'', contactPhone:'', number:'112', location:true, vibration:true, reports:[] };
-    let tab = 'home', reportType = 'Accident', countdownTimer = null, authMode = 'login';
-    const $ = id => document.getElementById(id);
-    const views = ['home','report','aid','contacts','settings'];
-    const originalSize = 100;
-    const sizeControl = $('app-size');
-    const resetSize = $('reset-size');
-    function applyAppSize(value) {
-      const size = Math.max(85, Math.min(120, Number(value) || originalSize));
-      $('app-shell').style.width = size + '%';
-      $('app-shell').style.marginLeft = ((100 - size) / 2) + '%';
-      $('app-shell').style.marginRight = ((100 - size) / 2) + '%';
-      sizeControl.value = size;
-      sizeControl.setAttribute('aria-valuenow', String(size));
-    }
-    sizeControl.addEventListener('input', event => applyAppSize(event.target.value));
-    resetSize.addEventListener('click', () => applyAppSize(originalSize));
-
-    function showScreen(screen) {
-      $('welcome').hidden = screen !== 'welcome';
-      $('auth-panel').hidden = screen !== 'auth';
-      $('signed-in-view').hidden = screen !== 'app';
-      $('top-nav').hidden = screen !== 'app';
-      $('signed-in-actions').hidden = screen !== 'app';
-    }
-    function openAuth(mode) {
-      authMode = mode;
-      $('prototype-form').reset();
-      $('auth-error').textContent = '';
-      $('login-head').hidden = mode !== 'login';
-      $('signup-head').hidden = mode !== 'signup';
-      $('login-fields').hidden = mode !== 'login';
-      $('signup-fields').hidden = mode !== 'signup';
-      $('complete-login').hidden = mode !== 'login';
-      $('complete-signup').hidden = mode !== 'signup';
-      showScreen('auth');
-      $('prototype-name').focus();
-    }
-    function switchTab(next) {
-      tab = next;
-      views.forEach(name => { $(name + '-view').hidden = name !== tab; });
-      document.querySelectorAll('[data-tab]').forEach(button => {
-        if (button.dataset.tab === tab) button.setAttribute('aria-current','page');
-        else button.removeAttribute('aria-current');
-      });
-      if (tab === 'report') renderReports();
-      if (tab === 'contacts') {
-        $('contact-name').value = state.contactName;
-        $('contact-phone').value = state.contactPhone;
-        $('emergency-call').href = 'tel:' + state.number;
-      }
-      if (tab === 'settings') {
-        $('setting-name').value = state.name;
-        $('setting-number').value = state.number;
-        $('setting-location').checked = state.location;
-        $('setting-vibration').checked = state.vibration;
-      }
-    }
-    function renderReports() {
-      const list = $('reports-list');
-      list.replaceChildren();
-      $('reports-empty').hidden = state.reports.length > 0;
-      state.reports.forEach(report => {
-        const fragment = $('report-item-template').content.cloneNode(true);
-        fragment.querySelector('.report-type').textContent = report.type;
-        fragment.querySelector('.report-note').textContent = report.note || 'No details';
-        fragment.querySelector('.report-time').textContent = report.time;
-        list.append(fragment);
-      });
-    }
-    function showOverlay(part) {
-      $('overlay').hidden = false;
-      ['countdown','location','ready'].forEach(name => { $(name + '-state').hidden = name !== part; });
-    }
-    function closeOverlay() {
-      clearInterval(countdownTimer);
-      $('overlay').hidden = true;
-      switchTab('home');
-      $('sos').focus();
-    }
-    function prepareAlert(type, note) {
-      showOverlay('location');
-      const finish = position => {
-        if ($('overlay').hidden) return;
-        const location = position
-          ? `https://maps.google.com/?q=${position.coords.latitude},${position.coords.longitude}`
-          : 'location not shared';
-        const message = `${state.name || 'Someone'} needs help. ${type}. ${note ? note + '. ' : ''}Location: ${location}`;
-        state.reports.unshift({ type, note, time:new Date().toLocaleString() });
-        state.reports = state.reports.slice(0,20);
-        if (state.vibration && navigator.vibrate) navigator.vibrate([200,100,200]);
-        $('call-link').href = 'tel:' + state.number;
-        $('call-label').textContent = 'Call ' + state.number;
-        $('text-link').hidden = !state.contactPhone;
-        $('no-contact').hidden = !!state.contactPhone;
-        if (state.contactPhone) {
-          $('text-link').href = 'sms:' + state.contactPhone + '?body=' + encodeURIComponent(message);
-          $('text-label').textContent = 'Text ' + (state.contactName || 'my contact');
+    // Apply the stored theme before the first paint so the app never flashes
+    // the wrong colours while the server response is still being painted.
+    (function () {
+      try {
+        var stored = localStorage.getItem('victimcare.theme');
+        if (stored) document.documentElement.setAttribute('data-theme', stored);
+        if (localStorage.getItem('victimcare.motion') === 'off') {
+          document.documentElement.setAttribute('data-motion', 'off');
         }
-        showOverlay('ready');
-        $('close-alert').focus();
-      };
-      if (state.location && navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(finish, () => finish(null), { timeout:8000, enableHighAccuracy:true });
-      } else finish(null);
-    }
-
-    $('open-login').addEventListener('click', () => openAuth('login'));
-    $('open-signup').addEventListener('click', () => openAuth('signup'));
-    document.querySelectorAll('.password-toggle').forEach(button => button.addEventListener('click', () => {
-      const input = $(button.dataset.passwordTarget);
-      const visible = input.type === 'text';
-      input.type = visible ? 'password' : 'text';
-      button.setAttribute('aria-pressed', String(!visible));
-    }));
-    $('back-to-welcome').addEventListener('click', () => showScreen('welcome'));
-    $('prototype-form').addEventListener('submit', event => {
-      event.preventDefault();
-      if (authMode === 'signup') {
-        const first = $('signup-first-name').value.trim();
-        const second = $('signup-second-name').value.trim();
-        const email = $('signup-email').value.trim();
-        const residence = $('signup-state').value.trim();
-        const nation = $('signup-nation').value.trim();
-        const password = $('signup-password').value;
-        const confirmation = $('signup-confirm-password').value;
-        if (!first || !second || !email || !residence || !nation || !password || !confirmation) {
-          $('auth-error').textContent = 'Complete all seven fields to continue.';
-          return;
-        }
-        if (!$('signup-email').validity.valid) {
-          $('auth-error').textContent = 'Enter a valid email address.';
-          $('signup-email').focus();
-          return;
-        }
-        if (password.length < 8) {
-          $('auth-error').textContent = 'Password must be at least 8 characters.';
-          $('signup-password').focus();
-          return;
-        }
-        if (password !== confirmation) {
-          $('auth-error').textContent = 'Passwords do not match.';
-          $('signup-confirm-password').focus();
-          return;
-        }
-        state.name = first;
-        state.email = email;
-      } else {
-        const name = $('prototype-name').value.trim();
-        const email = $('prototype-email').value.trim();
-        if (!name) {
-          $('auth-error').textContent = 'Enter your name to continue.';
-          $('prototype-name').focus();
-          return;
-        }
-        if (!$('prototype-email').validity.valid || !email) {
-          $('auth-error').textContent = 'Enter a valid email address to continue.';
-          $('prototype-email').focus();
-          return;
-        }
-        state.name = name;
-        state.email = email;
-      }
-      state.signedIn = true;
-      $('auth-error').textContent = '';
-      showScreen('app');
-      switchTab('home');
-      $('create').focus();
-    });
-    $('signout').addEventListener('click', () => {
-      clearInterval(countdownTimer);
-      $('overlay').hidden = true;
-      Object.assign(state, { signedIn:false, name:'', email:'', contactName:'', contactPhone:'', number:'112', location:true, vibration:true, reports:[] });
-      $('prototype-form').reset();
-      $('note').value = '';
-      showScreen('welcome');
-      $('open-login').focus();
-    });
-    $('create').addEventListener('click', () => { switchTab('report'); $('note').focus(); });
-    $('tabs').addEventListener('click', event => {
-      const button = event.target.closest('[data-tab]');
-      if (button) switchTab(button.dataset.tab);
-    });
-    $('home-view').addEventListener('click', event => {
-      const tile = event.target.closest('[data-go]');
-      if (tile) switchTab(tile.dataset.go);
-    });
-    document.querySelectorAll('[data-type]').forEach(button => button.addEventListener('click', () => {
-      reportType = button.dataset.type;
-      document.querySelectorAll('[data-type]').forEach(chip => chip.setAttribute('aria-pressed', String(chip === button)));
-    }));
-    document.querySelector('[data-type="Accident"]').setAttribute('aria-pressed','true');
-    $('send-report').addEventListener('click', () => {
-      const note = $('note').value.trim();
-      $('note').value = '';
-      prepareAlert(reportType, note);
-    });
-    $('sos').addEventListener('click', () => {
-      clearInterval(countdownTimer);
-      let seconds = 5;
-      $('countdown-number').textContent = seconds;
-      showOverlay('countdown');
-      $('cancel-alert').focus();
-      countdownTimer = setInterval(() => {
-        seconds--;
-        if (seconds <= 0) {
-          clearInterval(countdownTimer);
-          prepareAlert('SOS emergency','');
-        } else $('countdown-number').textContent = seconds;
-      },1000);
-    });
-    $('cancel-alert').addEventListener('click', closeOverlay);
-    $('close-alert').addEventListener('click', closeOverlay);
-    $('contact-form').addEventListener('submit', event => {
-      event.preventDefault();
-      state.contactName = $('contact-name').value.trim();
-      state.contactPhone = $('contact-phone').value.trim();
-      $('contact-status').textContent = 'Contact updated for this prototype session.';
-    });
-    $('settings-form').addEventListener('submit', event => {
-      event.preventDefault();
-      state.name = $('setting-name').value.trim();
-      state.number = $('setting-number').value.trim() || '112';
-      state.location = $('setting-location').checked;
-      state.vibration = $('setting-vibration').checked;
-      $('settings-status').textContent = 'Settings updated for this prototype session.';
-    });
-    $('clear-reports').addEventListener('click', () => {
-      state.reports = [];
-      $('settings-status').textContent = 'Past reports cleared.';
-    });
-    showScreen('welcome');
-    switchTab('home');
+      } catch (e) { /* storage is unavailable, the server value is used */ }
+    })();
   </script>
- 
-</body></html>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div id="app-shell" class="app-shell">
+    <header class="brand-header">
+      <div class="header-inner">
+        <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2h4v8h8v4h-8v8h-4v-8H2v-4h8z"></path></svg>
+        <h1 class="brand-title">Victim Care</h1>
+
+        <div class="header-actions" id="signed-in-actions" {{if not .SignedIn}}hidden{{end}}>
+          <button type="button" id="create" class="create-button">+ Create</button>
+          <button type="button" id="signout" class="signout-button">Sign out</button>
+          <button type="button" id="avatar-button" class="avatar-button" title="Your profile" aria-label="Open your profile and settings">
+            {{if .User.AvatarURL}}
+              <img src="{{.User.AvatarURL}}" alt="" class="avatar-image">
+            {{else}}
+              <span class="avatar-initials">{{.User.Initials}}</span>
+            {{end}}
+          </button>
+        </div>
+
+        <div class="resize-controls" aria-label="Resize app panel">
+          <label for="app-size">Panel size</label>
+          <input id="app-size" type="range" min="85" max="120" value="100" step="1" aria-valuemin="85" aria-valuemax="120" aria-valuenow="100" aria-label="Panel size percentage">
+          <button type="button" id="reset-size" class="resize-reset">Reset size</button>
+        </div>
+      </div>
+    </header>
+
+    <nav id="top-nav" class="top-nav" aria-label="Main navigation" {{if not .SignedIn}}hidden{{end}}>
+      <div class="nav-inner" id="tabs">
+        <button type="button" data-tab="home" aria-current="page">Home</button>
+        <button type="button" data-tab="report">Report</button>
+        <button type="button" data-tab="aid">First aid</button>
+        <button type="button" data-tab="contacts">Contacts</button>
+        <button type="button" data-tab="settings">Settings</button>
+      </div>
+    </nav>
+
+    <main id="main" class="main-inner">
+
+      <!-- ------------------------------------------------ welcome ------- -->
+      <section id="welcome" class="welcome" aria-labelledby="welcome-title" {{if .SignedIn}}hidden{{end}}>
+        <div class="picture-area" id="picture-area" role="img" aria-label="People receiving emergency help and first aid">
+          <div class="picture-stage">
+            <figure class="slide is-active" data-caption="Paramedics providing emergency care">
+              <img src="/static/img/slides/care.svg" alt="Illustration of emergency responders attending to a person" data-fallback="/static/img/slides/care.svg">
+            </figure>
+            <figure class="slide" data-caption="First aid training">
+              <img src="/static/img/slides/firstaid.svg" alt="Illustration of a first aid kit with bandages" data-fallback="/static/img/slides/firstaid.svg">
+            </figure>
+            <figure class="slide" data-caption="Support network">
+              <img src="/static/img/slides/support.svg" alt="Illustration of people supporting each other" data-fallback="/static/img/slides/support.svg">
+            </figure>
+            <figure class="slide" data-caption="Emergency response">
+              <img src="/static/img/slides/response.svg" alt="Illustration of an ambulance on the way" data-fallback="/static/img/slides/response.svg">
+            </figure>
+            <figure class="slide" data-caption="Safe and supported">
+              <img src="/static/img/slides/hope.svg" alt="Illustration of a calm and safe place" data-fallback="/static/img/slides/hope.svg">
+            </figure>
+          </div>
+          <div class="picture-dots" id="picture-dots" role="tablist" aria-label="Choose a picture"></div>
+        </div>
+
+        <div class="welcome-copy">
+          <p class="eyebrow">Help starts here</p>
+          <h2 id="welcome-title">Care when it matters most.</h2>
+          <p class="muted">Keep first-aid guidance, emergency contacts and your next steps close at hand. One button prepares an alert you can send in seconds.</p>
+          <div class="action-row">
+            <button id="open-login" type="button" class="action">Log in</button>
+            <button id="open-signup" type="button" class="action outline">Sign up</button>
+          </div>
+          <p class="muted small-note">Your details are stored privately on this server and are never sold or shared.</p>
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------- auth ---------- -->
+      <section id="auth-panel" class="form-panel" hidden aria-labelledby="auth-title">
+        <div id="login-head">
+          <h2 id="auth-title">Log in</h2>
+          <p class="muted">Enter your email address and password to open your space.</p>
+        </div>
+        <div id="signup-head" hidden>
+          <h2 id="auth-title-signup">Create your account</h2>
+          <p class="muted">Your account keeps your contacts, settings and report history ready for you.</p>
+        </div>
+
+        <form id="prototype-form" novalidate>
+          <div id="login-fields">
+            <label for="prototype-email">Email address</label>
+            <input id="prototype-email" type="email" autocomplete="email" required maxlength="160" aria-describedby="auth-error">
+            <label for="prototype-password">Password</label>
+            <div class="password-field">
+              <input id="prototype-password" type="password" autocomplete="current-password" required maxlength="128" aria-describedby="auth-error">
+              <button type="button" class="password-toggle" data-password-target="prototype-password" aria-pressed="false">Show</button>
+            </div>
+          </div>
+
+          <div id="signup-fields" hidden>
+            <label for="signup-first-name">First name</label>
+            <input id="signup-first-name" type="text" autocomplete="given-name" required maxlength="80" aria-describedby="auth-error">
+            <label for="signup-second-name">Second name</label>
+            <input id="signup-second-name" type="text" autocomplete="family-name" required maxlength="80" aria-describedby="auth-error">
+            <label for="signup-email">Email address</label>
+            <input id="signup-email" type="email" autocomplete="email" required maxlength="160" aria-describedby="auth-error">
+            <label for="signup-state">State of residence</label>
+            <input id="signup-state" type="text" autocomplete="address-level1" required maxlength="80" aria-describedby="auth-error">
+            <label for="signup-nation">Nation of origin</label>
+            <input id="signup-nation" type="text" autocomplete="country-name" placeholder="Enter your nation" required maxlength="80" aria-describedby="auth-error">
+            <label for="signup-password">Password</label>
+            <div class="password-field">
+              <input id="signup-password" type="password" autocomplete="new-password" required minlength="8" maxlength="128" aria-describedby="auth-error">
+              <button type="button" class="password-toggle" data-password-target="signup-password" aria-pressed="false">Show</button>
+            </div>
+            <label for="signup-confirm-password">Confirm password</label>
+            <div class="password-field">
+              <input id="signup-confirm-password" type="password" autocomplete="new-password" required minlength="8" maxlength="128" aria-describedby="auth-error">
+              <button type="button" class="password-toggle" data-password-target="signup-confirm-password" aria-pressed="false">Show</button>
+            </div>
+          </div>
+
+          <p id="auth-error" class="field-error" role="alert"></p>
+          <div class="form-actions">
+            <button type="submit" id="complete-login" class="action">Log in</button>
+            <button type="submit" id="complete-signup" class="action" hidden>Create account</button>
+            <button type="button" id="back-to-welcome" class="action outline">Back to welcome</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ------------------------------------------- signed in ----------- -->
+      <div id="signed-in-view" {{if not .SignedIn}}hidden{{end}}>
+
+        <!-- home -->
+        <section id="home-view" class="view">
+          <div class="intro-card">
+            <h2>Do you need help?</h2>
+            <p class="muted">Press SOS to prepare an emergency alert. You have {{.User.CountdownSecs}} seconds to cancel. Calls and texts must be sent from your device.</p>
+          </div>
+
+          <button id="sos" type="button" class="sos" aria-describedby="sos-helper">
+            <span class="sos-label">SOS</span>
+            <small id="sos-helper">Press for help</small>
+          </button>
+
+          <div class="tile-grid">
+            <button type="button" data-go="report" class="tile"><strong>Report a problem</strong><span>Say what happened</span></button>
+            <button type="button" data-go="aid" class="tile"><strong>First aid</strong><span>Steps you can follow now</span></button>
+            <button type="button" data-go="contacts" class="tile"><strong>Contacts</strong><span>Who you can alert</span></button>
+            <button type="button" data-go="settings" class="tile"><strong>Settings</strong><span>Profile, pictures and themes</span></button>
+          </div>
+        </section>
+
+        <!-- report -->
+        <section id="report-view" class="view" hidden>
+          <h2>Report a problem</h2>
+          <p class="muted">Describe the situation, then choose how to contact help from your device.</p>
+          <p class="field-label">What kind of problem?</p>
+          <div class="chips" role="group" aria-label="Problem type">
+            <button type="button" data-type="Accident" class="chip" aria-pressed="true">Accident</button>
+            <button type="button" data-type="Medical" class="chip" aria-pressed="false">Medical</button>
+            <button type="button" data-type="Assault" class="chip" aria-pressed="false">Assault</button>
+            <button type="button" data-type="Fire" class="chip" aria-pressed="false">Fire</button>
+            <button type="button" data-type="Other" class="chip" aria-pressed="false">Other</button>
+          </div>
+          <label for="note">What happened?</label>
+          <textarea id="note" rows="4" maxlength="1000" placeholder="Where you are, who is hurt, and anything dangerous nearby"></textarea>
+          <button type="button" id="send-report" class="action wide">Prepare alert</button>
+
+          <h3>Past reports</h3>
+          <div id="reports-list">
+            {{range .Reports}}
+              <article class="report-card">
+                <strong>{{.Kind}}</strong><br>
+                <span>{{if .Note}}{{.Note}}{{else}}No details{{end}}</span><br>
+                <small>{{.CreatedAt.Format "2 Jan 2006 15:04"}}</small>
+              </article>
+            {{end}}
+          </div>
+          <p id="reports-empty" class="muted" {{if .Reports}}hidden{{end}}>No reports yet. Reports prepared in this session will appear here.</p>
+        </section>
+
+        <!-- first aid -->
+        <section id="aid-view" class="view" hidden>
+          <h2>First aid</h2>
+          <p class="muted">Simple steps while you wait for help.</p>
+          {{range .Guides}}
+            <details>
+              <summary>{{.Title}}</summary>
+              <p class="muted small-note">{{.Summary}}</p>
+              <ol>
+                {{range .Steps}}<li>{{.}}</li>{{end}}
+              </ol>
+              <p class="call-help">{{.CallHelp}}</p>
+            </details>
+          {{end}}
+        </section>
+
+        <!-- contacts -->
+        <section id="contacts-view" class="view" hidden>
+          <h2>Emergency contacts</h2>
+          <p class="muted">Add someone you can text when preparing an alert. Nothing is sent automatically.</p>
+          <form id="contact-form" novalidate>
+            <label for="contact-name">Contact name</label>
+            <input id="contact-name" type="text" autocomplete="off" maxlength="80" value="{{.Contact.Name}}" aria-describedby="contact-status">
+            <label for="contact-phone">Contact phone</label>
+            <input id="contact-phone" type="tel" placeholder="+234..." maxlength="24" value="{{.Contact.Phone}}" aria-describedby="contact-status">
+            <button type="submit" class="action wide">Update contact</button>
+          </form>
+          <p id="contact-status" class="status" role="status"></p>
+          <a id="emergency-call" class="action outline wide" href="tel:{{.User.EmergencyNo}}">Call emergency services</a>
+        </section>
+
+        <!-- settings -->
+        <section id="settings-view" class="view" hidden>
+          <h2>Settings</h2>
+          <p class="muted">Everything about your profile, pictures, themes and alerts lives here.</p>
+
+          <!-- profile -->
+          <section class="settings-card" aria-labelledby="settings-profile-title">
+            <h3 id="settings-profile-title">Profile</h3>
+            <p class="muted small-note">Update the details that are attached to your alerts.</p>
+
+            <div class="profile-media">
+              <div class="avatar-preview" id="avatar-preview" role="button" tabindex="0" aria-label="Preview your profile picture">
+                {{if .User.AvatarURL}}
+                  <img src="{{.User.AvatarURL}}" alt="Your profile picture" id="avatar-image">
+                {{else}}
+                  <span class="avatar-initials large" id="avatar-initials">{{.User.Initials}}</span>
+                {{end}}
+              </div>
+              <div class="profile-media-actions">
+                <label class="upload-button" for="avatar-input">
+                  Upload picture
+                  <input id="avatar-input" type="file" accept="image/png,image/jpeg" hidden>
+                </label>
+                <p class="muted small-note">JPG or PNG, up to 5 MB, at least 128 x 128 pixels.</p>
+                <p id="upload-status" class="status" role="status"></p>
+              </div>
+            </div>
+
+            <form id="profile-form" novalidate>
+              <label for="profile-first-name">First name</label>
+              <input id="profile-first-name" type="text" autocomplete="given-name" maxlength="80" required value="{{.User.FirstName}}" aria-describedby="profile-status">
+              <label for="profile-second-name">Second name</label>
+              <input id="profile-second-name" type="text" autocomplete="family-name" maxlength="80" required value="{{.User.SecondName}}" aria-describedby="profile-status">
+              <label for="profile-email">Email address</label>
+              <input id="profile-email" type="email" autocomplete="email" maxlength="160" required value="{{.User.Email}}" aria-describedby="profile-status">
+              <label for="profile-state">State of residence</label>
+              <input id="profile-state" type="text" autocomplete="address-level1" maxlength="80" required value="{{.User.State}}" aria-describedby="profile-status">
+              <label for="profile-nation">Nation of origin</label>
+              <input id="profile-nation" type="text" autocomplete="country-name" maxlength="80" required value="{{.User.Nation}}" aria-describedby="profile-status">
+              <label for="profile-password">Current password <span class="muted">(only to change your email)</span></label>
+              <input id="profile-password" type="password" autocomplete="current-password" maxlength="128" aria-describedby="profile-status">
+              <div class="form-actions">
+                <button type="submit" class="action">Save profile</button>
+              </div>
+              <p id="profile-status" class="status" role="status"></p>
+            </form>
+          </section>
+
+          <!-- pictures -->
+          <section class="settings-card" aria-labelledby="settings-pictures-title">
+            <h3 id="settings-pictures-title">Your pictures</h3>
+            <p class="muted small-note">Upload more than one picture. The one you mark as your profile picture is shown in the header.</p>
+            <div id="picture-gallery" class="picture-gallery">
+              {{range .Pictures}}
+                <figure class="gallery-item {{if .Primary}}is-primary{{end}}" data-id="{{.ID}}">
+                  <img src="{{.ThumbURL}}" alt="Uploaded picture {{.ID}}" loading="lazy">
+                  <figcaption>
+                    <span class="badge {{if .Primary}}badge-primary{{end}}">{{if .Primary}}Profile picture{{else}}Picture{{end}}</span>
+                    <button type="button" class="link-button" data-action="primary" data-id="{{.ID}}">Make profile picture</button>
+                    <button type="button" class="link-button danger" data-action="delete" data-id="{{.ID}}">Delete</button>
+                  </figcaption>
+                </figure>
+              {{end}}
+            </div>
+            <p id="gallery-empty" class="muted" {{if .Pictures}}hidden{{end}}>No pictures uploaded yet.</p>
+            <p id="gallery-status" class="status" role="status"></p>
+          </section>
+
+          <!-- appearance -->
+          <section class="settings-card" aria-labelledby="settings-theme-title">
+            <h3 id="settings-theme-title">Appearance</h3>
+            <p class="muted small-note">Change the theme of the whole app. It applies immediately and is remembered.</p>
+
+            <div class="theme-picker" id="theme-picker" role="radiogroup" aria-label="App theme">
+              <button type="button" class="theme-swatch" role="radio" aria-checked="{{if eq .User.Theme "light"}}true{{else}}false{{end}}" data-theme="light">
+                <span class="swatch-colors"><i style="background:#d62828"></i><i style="background:#fff0f0"></i><i style="background:#3a1012"></i></span>
+                <span class="swatch-name">Light</span>
+              </button>
+              <button type="button" class="theme-swatch" role="radio" aria-checked="{{if eq .User.Theme "dark"}}true{{else}}false{{end}}" data-theme="dark">
+                <span class="swatch-colors"><i style="background:#ff6b6b"></i><i style="background:#1b1b1f"></i><i style="background:#f4f1f1"></i></span>
+                <span class="swatch-name">Dark</span>
+              </button>
+              <button type="button" class="theme-swatch" role="radio" aria-checked="{{if eq .User.Theme "calm"}}true{{else}}false{{end}}" data-theme="calm">
+                <span class="swatch-colors"><i style="background:#0f766e"></i><i style="background:#f0fdfa"></i><i style="background:#134e4a"></i></span>
+                <span class="swatch-name">Calm</span>
+              </button>
+              <button type="button" class="theme-swatch" role="radio" aria-checked="{{if eq .User.Theme "contrast"}}true{{else}}false{{end}}" data-theme="contrast">
+                <span class="swatch-colors"><i style="background:#ffe600"></i><i style="background:#000000"></i><i style="background:#ffffff"></i></span>
+                <span class="swatch-name">High contrast</span>
+              </button>
+              <button type="button" class="theme-swatch" role="radio" aria-checked="{{if eq .User.Theme "auto"}}true{{else}}false{{end}}" data-theme="auto">
+                <span class="swatch-colors"><i style="background:#9aa0a6"></i><i style="background:#f1f3f4"></i><i style="background:#202124"></i></span>
+                <span class="swatch-name">Auto (system)</span>
+              </button>
+            </div>
+
+            <div class="setting-row">
+              <label for="setting-motion">Animate pictures and effects</label>
+              <input id="setting-motion" type="checkbox" {{if .User.Motion}}checked{{end}}>
+            </div>
+            <p id="theme-status" class="status" role="status"></p>
+          </section>
+
+          <!-- alerts -->
+          <section class="settings-card" aria-labelledby="settings-alerts-title">
+            <h3 id="settings-alerts-title">Alerts</h3>
+            <p class="muted small-note">How the SOS button behaves when you need help.</p>
+            <form id="settings-form" novalidate>
+              <label for="setting-number">Emergency number to call</label>
+              <input id="setting-number" type="tel" maxlength="24" value="{{.User.EmergencyNo}}" aria-describedby="settings-status">
+
+              <label for="setting-countdown">Seconds to cancel the SOS alert</label>
+              <select id="setting-countdown" aria-describedby="settings-status">
+                <option value="3" {{if eq .User.CountdownSecs 3}}selected{{end}}>3 seconds</option>
+                <option value="5" {{if eq .User.CountdownSecs 5}}selected{{end}}>5 seconds</option>
+                <option value="10" {{if eq .User.CountdownSecs 10}}selected{{end}}>10 seconds</option>
+              </select>
+
+              <div class="setting-row">
+                <label for="setting-location">Share my location in alerts</label>
+                <input id="setting-location" type="checkbox" {{if .User.ShareLocation}}checked{{end}}>
+              </div>
+              <div class="setting-row">
+                <label for="setting-vibration">Vibrate when an alert is prepared</label>
+                <input id="setting-vibration" type="checkbox" {{if .User.Vibrate}}checked{{end}}>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="action">Save alert settings</button>
+              </div>
+              <p id="settings-status" class="status" role="status"></p>
+            </form>
+          </section>
+
+          <!-- account -->
+          <section class="settings-card" aria-labelledby="settings-account-title">
+            <h3 id="settings-account-title">Account</h3>
+            <p class="muted small-note">Change your password, sign out, or delete your account.</p>
+
+            <form id="password-form" novalidate>
+              <label for="current-password">Current password</label>
+              <input id="current-password" type="password" autocomplete="current-password" maxlength="128" aria-describedby="password-status">
+              <label for="new-password">New password</label>
+              <input id="new-password" type="password" autocomplete="new-password" minlength="8" maxlength="128" aria-describedby="password-status">
+              <label for="confirm-password">Confirm new password</label>
+              <input id="confirm-password" type="password" autocomplete="new-password" minlength="8" maxlength="128" aria-describedby="password-status">
+              <div class="form-actions">
+                <button type="submit" class="action">Change password</button>
+              </div>
+              <p id="password-status" class="status" role="status"></p>
+            </form>
+
+            <div class="account-actions">
+              <button type="button" id="settings-signout" class="action outline">Log out</button>
+              <button type="button" id="clear-reports" class="action outline">Clear past reports</button>
+              <button type="button" id="delete-account" class="action danger">Delete my account</button>
+            </div>
+            <p id="account-status" class="status" role="status"></p>
+          </section>
+
+          <!-- about -->
+          <section class="settings-card" aria-labelledby="settings-about-title">
+            <h3 id="settings-about-title">About this app</h3>
+            <p class="muted small-note">Victim Care {{.Version}} &mdash; built {{.Year}}.</p>
+            <p>Victim Care keeps emergency guidance, your emergency contact and a one tap alert in a single place. It is a companion, not a replacement for professional help.</p>
+
+            <div class="call-help">
+              <strong>Victim Care does not replace emergency services.</strong>
+              If you are in immediate danger, call your local emergency number now.
+            </div>
+
+            <h4>How your data is used</h4>
+            <ul class="about-list">
+              <li>Your password is hashed with bcrypt and is never stored in plain text.</li>
+              <li>Your pictures are stored on this server under a random file name.</li>
+              <li>Your location stays on your device until you choose to share it in a message.</li>
+              <li>No third party advertising, no selling of data, no third party analytics.</li>
+            </ul>
+
+            <h4>Credits</h4>
+            <ul class="about-list">
+              <li>First-aid guidance reviewed by a certified first responder.</li>
+              <li>Icons drawn in-house, type set in Nunito.</li>
+              <li>Built with the Go standard library and SQLite.</li>
+            </ul>
+
+            <h4>Legal</h4>
+            <ul class="about-list">
+              <li><a href="#" data-doc="terms">Terms of use</a></li>
+              <li><a href="#" data-doc="privacy">Privacy notice</a></li>
+              <li><a href="#" data-doc="accessibility">Accessibility statement</a></li>
+            </ul>
+            <p id="about-note" class="status" role="status"></p>
+          </section>
+        </section>
+      </div>
+    </main>
+
+    <footer class="app-footer">
+      <p class="muted small-note">Victim Care &mdash; care when it matters most. This app never places a call or sends a message without your tap.</p>
+    </footer>
+  </div>
+
+  <!-- --------------------------------------------- alert overlay --------- -->
+  <div id="overlay" class="alert-overlay" role="alertdialog" aria-modal="true" aria-label="Emergency alert" hidden>
+    <div class="alert-inner">
+      <div id="countdown-state" hidden>
+        <p>Preparing alert in</p>
+        <div id="countdown-number" class="alert-count" aria-live="assertive"></div>
+        <button id="cancel-alert" type="button" class="action">Cancel</button>
+      </div>
+
+      <div id="location-state" hidden>
+        <h2>Getting your location&hellip;</h2>
+        <p class="small-note">If this takes too long we will continue without it.</p>
+      </div>
+
+      <div id="ready-state" hidden>
+        <h2>Alert ready</h2>
+        <p class="small-note">Choose an option below to finish from your device. Nothing has been sent yet.</p>
+        <a id="call-link" class="action" href="tel:112"><span id="call-label">Call</span></a>
+        <a id="text-link" class="action outline" hidden><span id="text-label">Text</span></a>
+        <p id="no-contact" class="small-note">Add an emergency contact in Contacts to enable a text message.</p>
+        <button id="close-alert" type="button" class="action outline">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ------------------------------------------- picture lightbox -------- -->
+  <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Picture preview" hidden>
+    <button type="button" id="lightbox-close" class="lightbox-close" aria-label="Close picture preview">Close</button>
+    <img id="lightbox-image" alt="Preview of the selected picture">
+  </div>
+
+  <script id="bootstrap" type="application/json">{{.Bootstrap}}</script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

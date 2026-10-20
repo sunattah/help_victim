@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Safety and hope">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#155e75"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.45" r="0.5">
+      <stop offset="0" stop-color="#fff3c4" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#fff3c4" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#g)"/>
+  <circle cx="400" cy="260" r="260" fill="url(#sun)"/>
+  <circle cx="400" cy="250" r="70" fill="#ffe8a3"/>
+  <path d="M0 470c120-60 220 40 340 10s220-120 460-40v160H0z" fill="#083344" opacity="0.75"/>
+  <path d="M0 520c140-50 240 30 360 10s220-90 440-20v90H0z" fill="#052f3d"/>
+  <g transform="translate(400 400)" fill="none" stroke="#ffe8a3" stroke-width="10" stroke-linecap="round" opacity="0.9">
+    <path d="M0 60c0-40 30-70 70-70s70 30 70 70"/>
+    <path d="M-40 20c-20-30-6-60 24-66"/>
+    <path d="M40 20c20-30 6-60-24-66"/>
+  </g>
+</svg>

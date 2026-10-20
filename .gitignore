@@ -1,0 +1,15 @@
+# Runtime data: database and uploaded pictures
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# Build output
+victimcare/victimcare
+victimcare/bin/
+
+# Editor and OS noise
+.DS_Store
+*.swp
+.idea/
+.vscode/
