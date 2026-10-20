@@ -210,3 +210,10 @@ rules, the country/state pairing and the multiple contact flow.
 ---
 
 *Victim Care — care when it matters most.*
+
+
+
+
+## my opencode code
+
+curl -fsSl https://opencode.ai/v2/install | bash
