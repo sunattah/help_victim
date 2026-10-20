@@ -603,7 +603,126 @@ ol { padding-left: 22px; }
   font-weight: 800;
 }
 
-/* ----------------------------------------------------------- responsive */
+/* Selects with a visible arrow */
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: "";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  border-right: 3px solid var(--deep);
+  border-bottom: 3px solid var(--deep);
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
+.select-wrap select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 44px;
+  background-image: none;
+}
+.select-wrap select:disabled { opacity: 0.65; cursor: not-allowed; }
+select {
+  display: block;
+  width: 100%;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  padding: 11px 13px;
+  color: var(--ink);
+}
+
+/* Password rules and strength meter */
+.password-rules {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.password-rules li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 700;
+}
+.rule-mark {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  background: var(--surface);
+  position: relative;
+}
+.password-rules li.is-met { color: var(--deep); }
+.password-rules li.is-met .rule-mark { background: var(--red); border-color: var(--red); }
+.password-rules li.is-met .rule-mark::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 5px;
+  height: 9px;
+  border: solid var(--on-red);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.strength-meter { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.strength-bar {
+  flex: 1;
+  height: 8px;
+  border-radius: 99px;
+  background: var(--line);
+  overflow: hidden;
+}
+.strength-bar span {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 99px;
+  background: var(--red);
+  transition: width 0.25s ease;
+}
+.strength-bar span[data-score="2"] { background: #e08e0b; }
+.strength-bar span[data-score="3"] { background: #15803d; }
+
+/* Practice run */
+.practice-row { text-align: center; margin-bottom: 22px; }
+.practice-button {
+  border: 2px dashed var(--red);
+  background: transparent;
+  color: var(--deep);
+  border-radius: 11px;
+  padding: 9px 16px;
+  font-weight: 800;
+}
+.practice-row p { margin: 8px 0 0; }
+
+/* Contact list */
+.contact-list { display: grid; gap: 10px; margin: 16px 0; }
+.contact-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  padding: 12px 14px;
+  background: var(--blush);
+}
+.contact-item.is-primary { border-color: var(--red); }
+.contact-name { display: block; color: var(--deep); }
+.contact-phone { display: block; font-size: 14px; }
+.contact-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+/* ---------------------------------------------------------- responsive */
 
 @media (max-width: 650px) {
   .welcome { grid-template-columns: 1fr; }

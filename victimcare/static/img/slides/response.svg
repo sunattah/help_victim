@@ -1,36 +1,61 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Emergency response">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="An ambulance driving towards the viewer at night">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#2b4a86"/>
+    <linearGradient id="night" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1b2a52"/>
+      <stop offset="0.6" stop-color="#5c2340"/>
       <stop offset="1" stop-color="#9d0208"/>
     </linearGradient>
     <linearGradient id="road" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#1f3050"/>
-      <stop offset="1" stop-color="#101a2c"/>
+      <stop offset="0" stop-color="#241a20"/>
+      <stop offset="1" stop-color="#0d0a0c"/>
     </linearGradient>
   </defs>
-  <rect width="800" height="600" fill="url(#g)"/>
-  <circle cx="640" cy="120" r="70" fill="#ffe600" opacity="0.5"/>
-  <circle cx="600" cy="140" r="120" fill="#ffe600" opacity="0.12"/>
-  <rect y="430" width="800" height="170" fill="url(#road)"/>
-  <g stroke="#ffe600" stroke-width="10" stroke-dasharray="42 30" stroke-linecap="round" opacity="0.85">
-    <path d="M20 520h760"/>
+  <rect width="800" height="600" fill="url(#night)"/>
+  <circle cx="620" cy="120" r="52" fill="#fff3c4" opacity="0.85"/>
+  <circle cx="620" cy="120" r="90" fill="#fff3c4" opacity="0.14"/>
+
+  <!-- buildings -->
+  <g fill="#0d1330" opacity="0.85">
+    <rect x="20" y="240" width="90" height="200"/>
+    <rect x="120" y="290" width="70" height="150"/>
+    <rect x="690" y="260" width="90" height="180"/>
   </g>
-  <g transform="translate(360 300)">
-    <rect x="-180" y="-90" width="330" height="150" rx="22" fill="#ffffff"/>
-    <rect x="-120" y="-90" width="120" height="150" fill="#e5e7eb"/>
-    <rect x="40" y="-140" width="110" height="70" rx="14" fill="#f8fafc"/>
-    <rect x="-40" y="-55" width="90" height="26" rx="8" fill="#d62828"/>
-    <rect x="-22" y="-73" width="26" height="62" rx="8" fill="#d62828"/>
-    <circle cx="-110" cy="70" r="34" fill="#111827"/>
-    <circle cx="-110" cy="70" r="14" fill="#9ca3af"/>
-    <circle cx="90" cy="70" r="34" fill="#111827"/>
-    <circle cx="90" cy="70" r="14" fill="#9ca3af"/>
-    <g transform="translate(-560 40)">
-      <rect x="-30" y="-10" width="60" height="20" rx="10" fill="#ffe600" opacity="0.8"/>
+  <g fill="#ffe600" opacity="0.6">
+    <rect x="34" y="258" width="12" height="14"/><rect x="60" y="258" width="12" height="14"/><rect x="86" y="258" width="12" height="14"/>
+    <rect x="34" y="292" width="12" height="14"/><rect x="60" y="292" width="12" height="14"/><rect x="86" y="292" width="12" height="14"/>
+    <rect x="704" y="278" width="12" height="14"/><rect x="730" y="278" width="12" height="14"/><rect x="756" y="278" width="12" height="14"/>
+  </g>
+
+  <!-- road -->
+  <rect y="440" width="800" height="160" fill="url(#road)"/>
+  <g stroke="#ffe600" stroke-width="9" stroke-dasharray="40 30" stroke-linecap="round" opacity="0.75">
+    <path d="M-20 530h840"/>
+  </g>
+
+  <!-- ambulance -->
+  <g transform="translate(400 320)">
+    <ellipse cx="0" cy="128" rx="210" ry="18" fill="#000000" opacity="0.35"/>
+    <!-- cab -->
+    <path d="M-200 -40h120v130h-120z" fill="#f4f7fb"/>
+    <path d="M-80 -40h96l72 60v70H-80z" fill="#e6ecf4"/>
+    <path d="M-64 -30h68l54 44h-122z" fill="#8fb8d8"/>
+    <!-- body -->
+    <rect x="-200" y="-70" width="230" height="160" rx="16" fill="#ffffff"/>
+    <rect x="-200" y="-70" width="230" height="26" rx="12" fill="#d62828"/>
+    <!-- cross -->
+    <g transform="translate(-120 10)">
+      <rect x="-14" y="-46" width="28" height="92" rx="7" fill="#d62828"/>
+      <rect x="-46" y="-14" width="92" height="28" rx="7" fill="#d62828"/>
     </g>
-  </g>
-  <g fill="#ffffff" opacity="0.25">
-    <path d="M60 120c60-50 130-50 190 0-60-20-130-20-190 0z"/>
+    <!-- light bar -->
+    <rect x="-24" y="-92" width="120" height="24" rx="10" fill="#d62828"/>
+    <rect x="-24" y="-92" width="60" height="24" rx="10" fill="#4da3ff"/>
+    <!-- wheels -->
+    <circle cx="-120" cy="96" r="36" fill="#15171c"/>
+    <circle cx="-120" cy="96" r="14" fill="#8b93a1"/>
+    <circle cx="60" cy="96" r="36" fill="#15171c"/>
+    <circle cx="60" cy="96" r="14" fill="#8b93a1"/>
+    <!-- headlight beam -->
+    <path d="M96 20l160 26v40L96 62z" fill="#ffe600" opacity="0.22"/>
   </g>
 </svg>

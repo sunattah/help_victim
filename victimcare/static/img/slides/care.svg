@@ -1,28 +1,67 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Emergency care">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="A paramedic kneeling beside a person on the ground">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#d62828"/>
-      <stop offset="1" stop-color="#7a1016"/>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6b8b8"/>
+      <stop offset="1" stop-color="#d62828"/>
     </linearGradient>
-    <radialGradient id="h" cx="0.3" cy="0.25" r="0.8">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.35"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8c1a1f"/>
+      <stop offset="1" stop-color="#5c0d11"/>
+    </linearGradient>
   </defs>
-  <rect width="800" height="600" fill="url(#g)"/>
-  <rect width="800" height="600" fill="url(#h)"/>
-  <circle cx="250" cy="190" r="130" fill="#ffffff" opacity="0.08"/>
-  <circle cx="600" cy="430" r="180" fill="#ffffff" opacity="0.06"/>
-  <g transform="translate(400 300)">
-    <rect x="-34" y="-150" width="68" height="300" rx="16" fill="#ffffff"/>
-    <rect x="-150" y="-34" width="300" height="68" rx="16" fill="#ffffff"/>
+
+  <rect width="800" height="600" fill="url(#sky)"/>
+  <circle cx="660" cy="110" r="58" fill="#fff3c4" opacity="0.75"/>
+
+  <!-- city skyline -->
+  <g fill="#8c1a1f" opacity="0.45">
+    <rect x="40" y="150" width="70" height="250"/>
+    <rect x="125" y="200" width="55" height="200"/>
+    <rect x="700" y="180" width="70" height="220"/>
+    <rect x="620" y="230" width="60" height="170"/>
   </g>
-  <g transform="translate(150 460)" fill="#ffffff" opacity="0.85">
-    <circle cx="0" cy="-46" r="24"/>
-    <path d="M-38 0c0-22 17-38 38-38s38 16 38 38v54h-76z"/>
+  <g fill="#fff3c4" opacity="0.45">
+    <rect x="55" y="170" width="12" height="16"/><rect x="80" y="170" width="12" height="16"/>
+    <rect x="55" y="205" width="12" height="16"/><rect x="80" y="205" width="12" height="16"/>
+    <rect x="715" y="200" width="12" height="16"/><rect x="740" y="200" width="12" height="16"/>
+    <rect x="635" y="250" width="12" height="16"/><rect x="660" y="250" width="12" height="16"/>
   </g>
-  <g transform="translate(660 470)" fill="#ffffff" opacity="0.85">
-    <circle cx="0" cy="-46" r="24"/>
-    <path d="M-38 0c0-22 17-38 38-38s38 16 38 38v54h-76z"/>
+
+  <!-- ground -->
+  <path d="M0 400h800v200H0z" fill="url(#ground)"/>
+
+  <!-- patient lying down -->
+  <g transform="translate(300 430)">
+    <ellipse cx="0" cy="46" rx="150" ry="16" fill="#3d090c" opacity="0.35"/>
+    <circle cx="-92" cy="-6" r="26" fill="#f7d9c4"/>
+    <path d="M-118 -6a26 26 0 0 1 52 0z" fill="#3b2a28"/>
+    <rect x="-66" y="-20" width="150" height="46" rx="22" fill="#f2f4f8"/>
+    <rect x="-20" y="-4" width="60" height="12" rx="6" fill="#d62828"/>
+    <rect x="-70" y="24" width="120" height="18" rx="9" fill="#3f4a5a"/>
+    <rect x="46" y="6" width="76" height="16" rx="8" fill="#3f4a5a"/>
+    <rect x="112" y="-6" width="26" height="26" rx="8" fill="#f7d9c4"/>
+  </g>
+
+  <!-- paramedic kneeling -->
+  <g transform="translate(560 300)">
+    <circle cx="0" cy="-96" r="30" fill="#f7d9c4"/>
+    <path d="M-30 -100a30 30 0 0 1 60 0z" fill="#2f2a2c"/>
+    <path d="M-34 -66h68l-10 96h-48z" fill="#ffffff"/>
+    <rect x="-14" y="-62" width="28" height="66" rx="8" fill="#d62828"/>
+    <rect x="-30" y="-62" width="60" height="22" rx="8" fill="#d62828"/>
+    <path d="M-30 30c-10 34-16 56-20 76h26l14-52z" fill="#3f4a5a"/>
+    <path d="M30 30c14 30 24 50 30 70l-24 8-20-48z" fill="#3f4a5a"/>
+    <!-- reaching arm holding a bandage to the patient -->
+    <path d="M-26 -40c-40 10-78 40-96 74l22 14c20-30 52-54 84-62z" fill="#ffffff"/>
+    <circle cx="-122" cy="44" r="16" fill="#f7d9c4"/>
+    <rect x="-166" y="42" width="34" height="14" rx="6" fill="#ffe8e8"/>
+  </g>
+
+  <!-- first aid bag -->
+  <g transform="translate(600 470)">
+    <rect x="-46" y="-30" width="92" height="62" rx="12" fill="#e8eef5"/>
+    <path d="M-16 -30v-12a12 12 0 0 1 12-12h8a12 12 0 0 1 12 12v12" fill="none" stroke="#e8eef5" stroke-width="8"/>
+    <rect x="-8" y="-18" width="16" height="38" rx="5" fill="#d62828"/>
+    <rect x="-24" y="-8" width="48" height="16" rx="5" fill="#d62828"/>
   </g>
 </svg>

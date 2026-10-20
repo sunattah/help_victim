@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light dark">
   <title>Victim Care</title>
+  <link rel="manifest" href="/static/manifest.webmanifest">
+  <meta name="theme-color" content="#d62828">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Victim Care">
+  <link rel="apple-touch-icon" href="/static/img/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
@@ -128,16 +133,42 @@
             <label for="signup-second-name">Second name</label>
             <input id="signup-second-name" type="text" autocomplete="family-name" required maxlength="80" aria-describedby="auth-error">
             <label for="signup-email">Email address</label>
-            <input id="signup-email" type="email" autocomplete="email" required maxlength="160" aria-describedby="auth-error">
-            <label for="signup-state">State of residence</label>
-            <input id="signup-state" type="text" autocomplete="address-level1" required maxlength="80" aria-describedby="auth-error">
+            <input id="signup-email" type="email" autocomplete="email" inputmode="email" required maxlength="160" placeholder="name@example.com" aria-describedby="auth-error signup-email-hint">
+            <p id="signup-email-hint" class="muted small-note">Use a real email address, for example name@example.com.</p>
+
+            <label for="signup-country">Country of residence</label>
+            <div class="select-wrap">
+              <select id="signup-country" required aria-describedby="auth-error" data-region-target="signup-state">
+                <option value="">Choose a country</option>
+                {{range .Countries}}<option value="{{.Name}}">{{.Name}}</option>{{end}}
+              </select>
+            </div>
+
+            <label for="signup-state">State / Region</label>
+            <div class="select-wrap">
+              <select id="signup-state" required disabled aria-describedby="auth-error">
+                <option value="">Choose a country first</option>
+              </select>
+            </div>
+
             <label for="signup-nation">Nation of origin</label>
             <input id="signup-nation" type="text" autocomplete="country-name" placeholder="Enter your nation" required maxlength="80" aria-describedby="auth-error">
+
             <label for="signup-password">Password</label>
             <div class="password-field">
-              <input id="signup-password" type="password" autocomplete="new-password" required minlength="8" maxlength="128" aria-describedby="auth-error">
+              <input id="signup-password" type="password" autocomplete="new-password" required maxlength="128" aria-describedby="auth-error password-rules">
               <button type="button" class="password-toggle" data-password-target="signup-password" aria-pressed="false">Show</button>
             </div>
+            <ul class="password-rules" id="password-rules" aria-live="polite">
+              <li data-rule="length"><span class="rule-mark" aria-hidden="true"></span>At least 8 characters</li>
+              <li data-rule="letter"><span class="rule-mark" aria-hidden="true"></span>At least one letter</li>
+              <li data-rule="digit"><span class="rule-mark" aria-hidden="true"></span>At least one number</li>
+            </ul>
+            <div class="strength-meter" id="strength-meter" hidden>
+              <div class="strength-bar"><span id="strength-fill"></span></div>
+              <span class="muted small-note" id="strength-label">Weak</span>
+            </div>
+
             <label for="signup-confirm-password">Confirm password</label>
             <div class="password-field">
               <input id="signup-confirm-password" type="password" autocomplete="new-password" required minlength="8" maxlength="128" aria-describedby="auth-error">
@@ -168,6 +199,11 @@
             <span class="sos-label">SOS</span>
             <small id="sos-helper">Press for help</small>
           </button>
+
+          <div class="practice-row">
+            <button type="button" id="practice" class="practice-button">Practise the alert</button>
+            <p class="muted small-note">Run the countdown to see how the alert works. Nothing is sent and nothing is saved.</p>
+          </div>
 
           <div class="tile-grid">
             <button type="button" data-go="report" class="tile"><strong>Report a problem</strong><span>Say what happened</span></button>
@@ -225,13 +261,40 @@
         <!-- contacts -->
         <section id="contacts-view" class="view" hidden>
           <h2>Emergency contacts</h2>
-          <p class="muted">Add someone you can text when preparing an alert. Nothing is sent automatically.</p>
+          <p class="muted">Add the people you can alert when preparing an alert. Nothing is sent automatically. The contact marked <strong>primary</strong> is the one the text alert goes to.</p>
+
+          <div id="contact-list" class="contact-list">
+            {{range .Contacts}}
+              <article class="contact-item {{if .Primary}}is-primary{{end}}" data-id="{{.ID}}">
+                <div>
+                  <strong class="contact-name">{{.Name}}</strong>
+                  <span class="muted contact-phone">{{.Phone}}</span>
+                </div>
+                <div class="contact-actions">
+                  {{if not .Primary}}
+                    <button type="button" class="link-button" data-contact-action="primary" data-id="{{.ID}}">Make primary</button>
+                  {{else}}
+                    <span class="badge badge-primary">Primary</span>
+                  {{end}}
+                  <button type="button" class="link-button" data-contact-action="edit" data-id="{{.ID}}" data-name="{{.Name}}" data-phone="{{.Phone}}">Edit</button>
+                  <button type="button" class="link-button danger" data-contact-action="delete" data-id="{{.ID}}">Delete</button>
+                </div>
+              </article>
+            {{end}}
+          </div>
+          <p id="contacts-empty" class="muted" {{if .Contacts}}hidden{{end}}>No contacts yet. Add one below so you can text someone in an emergency.</p>
+
           <form id="contact-form" novalidate>
+            <h3 id="contact-form-title">Add a contact</h3>
+            <input type="hidden" id="contact-id" value="">
             <label for="contact-name">Contact name</label>
             <input id="contact-name" type="text" autocomplete="off" maxlength="80" value="{{.Contact.Name}}" aria-describedby="contact-status">
             <label for="contact-phone">Contact phone</label>
             <input id="contact-phone" type="tel" placeholder="+234..." maxlength="24" value="{{.Contact.Phone}}" aria-describedby="contact-status">
-            <button type="submit" class="action wide">Update contact</button>
+            <div class="form-actions">
+              <button type="submit" class="action">Save contact</button>
+              <button type="button" id="cancel-contact-edit" class="action outline" hidden>Cancel edit</button>
+            </div>
           </form>
           <p id="contact-status" class="status" role="status"></p>
           <a id="emergency-call" class="action outline wide" href="tel:{{.User.EmergencyNo}}">Call emergency services</a>
@@ -271,9 +334,20 @@
               <label for="profile-second-name">Second name</label>
               <input id="profile-second-name" type="text" autocomplete="family-name" maxlength="80" required value="{{.User.SecondName}}" aria-describedby="profile-status">
               <label for="profile-email">Email address</label>
-              <input id="profile-email" type="email" autocomplete="email" maxlength="160" required value="{{.User.Email}}" aria-describedby="profile-status">
-              <label for="profile-state">State of residence</label>
-              <input id="profile-state" type="text" autocomplete="address-level1" maxlength="80" required value="{{.User.State}}" aria-describedby="profile-status">
+              <input id="profile-email" type="email" autocomplete="email" inputmode="email" maxlength="160" required value="{{.User.Email}}" aria-describedby="profile-status">
+              <label for="profile-country">Country of residence</label>
+              <div class="select-wrap">
+                <select id="profile-country" required aria-describedby="profile-status" data-region-target="profile-state">
+                  <option value="">Choose a country</option>
+                  {{range .Countries}}<option value="{{.Name}}" {{if eq $.User.Country .Name}}selected{{end}}>{{.Name}}</option>{{end}}
+                </select>
+              </div>
+              <label for="profile-state">State / Region</label>
+              <div class="select-wrap">
+                <select id="profile-state" required aria-describedby="profile-status">
+                  <option value="">Choose a country first</option>
+                </select>
+              </div>
               <label for="profile-nation">Nation of origin</label>
               <input id="profile-nation" type="text" autocomplete="country-name" maxlength="80" required value="{{.User.Nation}}" aria-describedby="profile-status">
               <label for="profile-password">Current password <span class="muted">(only to change your email)</span></label>
@@ -429,6 +503,11 @@
               <li><a href="#" data-doc="privacy">Privacy notice</a></li>
               <li><a href="#" data-doc="accessibility">Accessibility statement</a></li>
             </ul>
+
+            <h4>Install the app</h4>
+            <p class="muted small-note">Add Victim Care to your home screen so it opens like a normal app, keeps working when the network is weak and starts without a browser bar.</p>
+            <button type="button" id="install-app" class="action outline" hidden>Install Victim Care</button>
+            <p id="install-note" class="status" role="status"></p>
             <p id="about-note" class="status" role="status"></p>
           </section>
         </section>
@@ -455,10 +534,11 @@
       </div>
 
       <div id="ready-state" hidden>
-        <h2>Alert ready</h2>
-        <p class="small-note">Choose an option below to finish from your device. Nothing has been sent yet.</p>
+        <h2 id="ready-title">Alert ready</h2>
+        <p id="ready-description" class="small-note">Choose an option below to finish from your device. Nothing has been sent yet.</p>
         <a id="call-link" class="action" href="tel:112"><span id="call-label">Call</span></a>
         <a id="text-link" class="action outline" hidden><span id="text-label">Text</span></a>
+        <button type="button" id="copy-alert" class="action outline">Copy the message</button>
         <p id="no-contact" class="small-note">Add an emergency contact in Contacts to enable a text message.</p>
         <button id="close-alert" type="button" class="action outline">Close</button>
       </div>

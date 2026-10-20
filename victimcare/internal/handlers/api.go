@@ -6,8 +6,10 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"victimcare/internal/auth"
+	"victimcare/internal/countries"
 	"victimcare/internal/imaging"
 	"victimcare/internal/models"
 	"victimcare/internal/store"
@@ -19,6 +21,7 @@ type signupRequest struct {
 	FirstName  string `json:"firstName"`
 	SecondName string `json:"secondName"`
 	Email      string `json:"email"`
+	Country    string `json:"country"`
 	State      string `json:"state"`
 	Nation     string `json:"nation"`
 	Password   string `json:"password"`
@@ -38,6 +41,7 @@ func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
 	req.FirstName = strings.TrimSpace(req.FirstName)
 	req.SecondName = strings.TrimSpace(req.SecondName)
 	req.Email = strings.TrimSpace(req.Email)
+	req.Country = strings.TrimSpace(req.Country)
 	req.State = strings.TrimSpace(req.State)
 	req.Nation = strings.TrimSpace(req.Nation)
 
@@ -49,16 +53,20 @@ func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "Enter your second name.", "secondName")
 		return
 	case !validEmail(req.Email):
-		writeError(w, http.StatusBadRequest, "Enter a valid email address.", "email")
+		writeError(w, http.StatusBadRequest, "Enter a valid email address, for example name@example.com.", "email")
 		return
-	case req.State == "":
-		writeError(w, http.StatusBadRequest, "Enter your state of residence.", "state")
+	case req.Country == "":
+		writeError(w, http.StatusBadRequest, "Choose your country of residence.", "country")
+		return
+	case !validState(req.Country, req.State):
+		writeError(w, http.StatusBadRequest, "Choose a state or region for the country you picked.", "state")
 		return
 	case req.Nation == "":
 		writeError(w, http.StatusBadRequest, "Enter your nation of origin.", "nation")
 		return
-	case len(req.Password) < 8:
-		writeError(w, http.StatusBadRequest, "Password must be at least 8 characters.", "password")
+	}
+	if problem := passwordProblem(req.Password); problem != "" {
+		writeError(w, http.StatusBadRequest, problem, "password")
 		return
 	}
 
@@ -75,6 +83,7 @@ func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
 		PasswordHash:  hash,
 		State:         req.State,
 		Nation:        req.Nation,
+		Country:       req.Country,
 		Theme:         "light",
 		Motion:        true,
 		EmergencyNo:   "112",
@@ -145,6 +154,7 @@ type profileRequest struct {
 	FirstName  string `json:"firstName"`
 	SecondName string `json:"secondName"`
 	Email      string `json:"email"`
+	Country    string `json:"country"`
 	State      string `json:"state"`
 	Nation     string `json:"nation"`
 	Password   string `json:"password"`
@@ -163,6 +173,7 @@ func (s *Server) handleUpdateProfile(w http.ResponseWriter, r *http.Request) {
 		req.FirstName = strings.TrimSpace(req.FirstName)
 		req.SecondName = strings.TrimSpace(req.SecondName)
 		req.Email = strings.TrimSpace(req.Email)
+		req.Country = strings.TrimSpace(req.Country)
 		req.State = strings.TrimSpace(req.State)
 		req.Nation = strings.TrimSpace(req.Nation)
 
@@ -175,11 +186,15 @@ func (s *Server) handleUpdateProfile(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if !validEmail(req.Email) {
-			writeError(w, http.StatusBadRequest, "Enter a valid email address.", "email")
+			writeError(w, http.StatusBadRequest, "Enter a valid email address, for example name@example.com.", "email")
 			return
 		}
-		if req.State == "" {
-			writeError(w, http.StatusBadRequest, "Enter your state of residence.", "state")
+		if req.Country == "" {
+			writeError(w, http.StatusBadRequest, "Choose your country of residence.", "country")
+			return
+		}
+		if !validState(req.Country, req.State) {
+			writeError(w, http.StatusBadRequest, "Choose a state or region for the country you picked.", "state")
 			return
 		}
 		if req.Nation == "" {
@@ -195,7 +210,7 @@ func (s *Server) handleUpdateProfile(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		updated, err := s.store.UpdateProfile(r.Context(), user.ID, req.FirstName, req.SecondName, req.Email, req.State, req.Nation)
+		updated, err := s.store.UpdateProfile(r.Context(), user.ID, req.FirstName, req.SecondName, req.Email, req.State, req.Nation, req.Country)
 		if err != nil {
 			if errors.Is(err, store.ErrEmailTaken) {
 				writeError(w, http.StatusConflict, "That email address is already registered.", "email")
@@ -298,8 +313,8 @@ func (s *Server) handleChangePassword(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusForbidden, "Your current password is not correct.", "currentPassword")
 			return
 		}
-		if len(req.New) < 8 {
-			writeError(w, http.StatusBadRequest, "Password must be at least 8 characters.", "newPassword")
+		if problem := passwordProblem(req.New); problem != "" {
+			writeError(w, http.StatusBadRequest, problem, "newPassword")
 			return
 		}
 		hash, err := auth.HashPassword(req.New)
@@ -475,6 +490,7 @@ func (s *Server) handlePrimaryPicture(w http.ResponseWriter, r *http.Request) {
 // -------------------------------------------------------------- contacts ---
 
 type contactRequest struct {
+	ID    int64  `json:"id"`
 	Name  string `json:"name"`
 	Phone string `json:"phone"`
 }
@@ -491,6 +507,8 @@ func (s *Server) handleListContacts(w http.ResponseWriter, r *http.Request) {
 	})(w, r)
 }
 
+// handleSaveContact adds a new contact or updates an existing one. The first
+// contact a user saves becomes the primary contact used for text alerts.
 func (s *Server) handleSaveContact(w http.ResponseWriter, r *http.Request) {
 	s.requireCSRF(func(w http.ResponseWriter, r *http.Request) {
 		var req contactRequest
@@ -509,16 +527,50 @@ func (s *Server) handleSaveContact(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		session := sessionFrom(r)
-		contact, err := s.store.SetPrimaryContact(r.Context(), models.Contact{
-			UserID: session.User.ID,
-			Name:   req.Name,
-			Phone:  req.Phone,
-		})
+
+		var contact models.Contact
+		var err error
+		if req.ID > 0 {
+			contact, err = s.store.UpdateContact(r.Context(), session.User.ID, req.ID, req.Name, req.Phone)
+			if errors.Is(err, store.ErrNotFound) {
+				writeError(w, http.StatusNotFound, "That contact could not be found.", "id")
+				return
+			}
+		} else {
+			contact, err = s.store.AddContact(r.Context(), models.Contact{
+				UserID: session.User.ID,
+				Name:   req.Name,
+				Phone:  req.Phone,
+			})
+		}
 		if err != nil {
 			writeError(w, http.StatusInternalServerError, "We could not save your contact. Please try again.", "")
 			return
 		}
-		writeJSON(w, http.StatusOK, map[string]any{"contact": contact})
+		contacts, _ := s.store.Contacts(r.Context(), session.User.ID)
+		writeJSON(w, http.StatusOK, map[string]any{"contact": contact, "contacts": contacts})
+	})(w, r)
+}
+
+// handleMakePrimaryContact picks the contact that text alerts go to.
+func (s *Server) handleMakePrimaryContact(w http.ResponseWriter, r *http.Request) {
+	s.requireCSRF(func(w http.ResponseWriter, r *http.Request) {
+		session := sessionFrom(r)
+		id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, "That contact could not be found.", "id")
+			return
+		}
+		if _, err := s.store.ContactByID(r.Context(), session.User.ID, id); err != nil {
+			writeError(w, http.StatusNotFound, "That contact could not be found.", "id")
+			return
+		}
+		if err := s.store.MakePrimaryContact(r.Context(), session.User.ID, id); err != nil {
+			writeError(w, http.StatusInternalServerError, "We could not update your contacts. Please try again.", "")
+			return
+		}
+		contacts, _ := s.store.Contacts(r.Context(), session.User.ID)
+		writeJSON(w, http.StatusOK, map[string]any{"contacts": contacts})
 	})(w, r)
 }
 
@@ -530,21 +582,16 @@ func (s *Server) handleDeleteContact(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusBadRequest, "That contact could not be found.", "id")
 			return
 		}
-		contacts, err := s.store.Contacts(r.Context(), session.User.ID)
-		if err != nil {
-			writeError(w, http.StatusInternalServerError, "We could not load your contacts. Please try again.", "")
+		if err := s.store.DeleteContact(r.Context(), session.User.ID, id); err != nil {
+			if errors.Is(err, store.ErrNotFound) {
+				writeError(w, http.StatusNotFound, "That contact could not be found.", "id")
+				return
+			}
+			writeError(w, http.StatusInternalServerError, "We could not delete that contact. Please try again.", "")
 			return
 		}
-		for _, c := range contacts {
-			if c.ID == id {
-				if _, err := s.store.SetPrimaryContact(r.Context(), models.Contact{UserID: session.User.ID, Name: c.Name, Phone: c.Phone}); err != nil {
-					writeError(w, http.StatusInternalServerError, "We could not update your contacts. Please try again.", "")
-					return
-				}
-				break
-			}
-		}
-		writeJSON(w, http.StatusOK, map[string]any{"ok": true})
+		contacts, _ := s.store.Contacts(r.Context(), session.User.ID)
+		writeJSON(w, http.StatusOK, map[string]any{"contacts": contacts})
 	})(w, r)
 }
 
@@ -623,14 +670,104 @@ func (s *Server) handleClearIncidents(w http.ResponseWriter, r *http.Request) {
 
 // ------------------------------------------------------------ validation ---
 
-var emailPattern = regexp.MustCompile(`^[^@\s]+@[^@\s.]+\.[^@\s]+$`)
+// emailLocal and emailDomain describe what a real email address may contain.
+// The address must be an email address and nothing else: no spaces, no
+// second @, no missing or invented top level domain.
+var (
+	emailLocalPattern  = regexp.MustCompile(`^[A-Za-z0-9]([A-Za-z0-9._%+-]*[A-Za-z0-9])?$`)
+	emailDomainPattern = regexp.MustCompile(`^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)*$`)
+	emailTLDPattern    = regexp.MustCompile(`^[A-Za-z]{2,24}$`)
+)
 
+// validEmail reports whether the value is a well formed email address.
 func validEmail(email string) bool {
 	email = strings.TrimSpace(email)
 	if email == "" || len(email) > 160 {
 		return false
 	}
-	return emailPattern.MatchString(email)
+	if strings.ContainsAny(email, " \t\r\n") {
+		return false
+	}
+	parts := strings.Split(email, "@")
+	if len(parts) != 2 {
+		return false
+	}
+	local, domain := parts[0], parts[1]
+	if local == "" || len(local) > 64 || domain == "" || len(domain) > 255 {
+		return false
+	}
+	if strings.Contains(local, "..") || strings.Contains(domain, "..") {
+		return false
+	}
+	if !emailLocalPattern.MatchString(local) {
+		return false
+	}
+	if !emailDomainPattern.MatchString(domain) {
+		return false
+	}
+	labels := strings.Split(domain, ".")
+	if len(labels) < 2 {
+		return false
+	}
+	return emailTLDPattern.MatchString(labels[len(labels)-1])
+}
+
+// passwordProblem checks a password against the account rules and returns the
+// reason it is not acceptable, or an empty string when the password is fine.
+//
+// A password must be at least 8 characters long and contain both letters and
+// digits.
+func passwordProblem(password string) string {
+	if len(password) < 8 {
+		return "Password is incorrect. It must be at least 8 characters long."
+	}
+	if len(password) > 128 {
+		return "Password is incorrect. It must be at most 128 characters long."
+	}
+	if !hasLetter(password) {
+		return "Password is incorrect. It must contain at least one letter."
+	}
+	if !hasDigit(password) {
+		return "Password is incorrect. It must contain at least one number."
+	}
+	return ""
+}
+
+func hasLetter(value string) bool {
+	for _, r := range value {
+		if unicode.IsLetter(r) {
+			return true
+		}
+	}
+	return false
+}
+
+func hasDigit(value string) bool {
+	for _, r := range value {
+		if unicode.IsDigit(r) {
+			return true
+		}
+	}
+	return false
+}
+
+// validState checks that a state or region belongs to the chosen country.
+// Countries that have no known list of states accept any short free text.
+func validState(country, state string) bool {
+	state = strings.TrimSpace(state)
+	if state == "" || len(state) > 80 {
+		return false
+	}
+	regions, known := countries.RegionsFor(country)
+	if !known {
+		return true
+	}
+	for _, region := range regions {
+		if strings.EqualFold(region, state) {
+			return true
+		}
+	}
+	return false
 }
 
 var phonePattern = regexp.MustCompile(`^[0-9+][0-9\s\-().]{1,23}$`)

@@ -17,6 +17,7 @@ import (
 
 	"victimcare/internal/auth"
 	"victimcare/internal/config"
+	"victimcare/internal/countries"
 	"victimcare/internal/guides"
 	"victimcare/internal/models"
 	"victimcare/internal/store"
@@ -87,6 +88,8 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("GET /api/v1/contacts", s.handleListContacts)
 	s.mux.HandleFunc("POST /api/v1/contacts", s.handleSaveContact)
 	s.mux.HandleFunc("DELETE /api/v1/contacts/{id}", s.handleDeleteContact)
+	s.mux.HandleFunc("POST /api/v1/contacts/{id}/primary", s.handleMakePrimaryContact)
+	s.mux.HandleFunc("GET /api/v1/countries", s.handleCountries)
 	s.mux.HandleFunc("GET /api/v1/incidents", s.handleListIncidents)
 	s.mux.HandleFunc("POST /api/v1/incidents", s.handleCreateIncident)
 	s.mux.HandleFunc("DELETE /api/v1/incidents", s.handleClearIncidents)
@@ -185,6 +188,7 @@ func (s *Server) publicUser(ctx context.Context, u models.User) models.PublicUse
 		Email:         u.Email,
 		State:         u.State,
 		Nation:        u.Nation,
+		Country:       u.Country,
 		Theme:         u.Theme,
 		Motion:        u.Motion,
 		EmergencyNo:   u.EmergencyNo,
@@ -238,6 +242,12 @@ func (s *Server) handleGuides(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"guides": guides.All()})
 }
 
+// handleCountries returns the country and state list used by the signup and
+// profile forms.
+func (s *Server) handleCountries(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, map[string]any{"countries": countries.All()})
+}
+
 // ---------------------------------------------------------------- pages ----
 
 func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
@@ -247,16 +257,18 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := map[string]any{
-		"Version":  Version,
-		"Theme":    "light",
-		"SignedIn": false,
-		"CSRF":     "",
-		"User":     models.PublicUser{},
-		"Pictures": []models.Picture{},
-		"Guides":   guides.All(),
-		"Contact":  models.Contact{},
-		"Reports":  []models.Incident{},
-		"Year":     time.Now().Year(),
+		"Version":   Version,
+		"Theme":     "light",
+		"SignedIn":  false,
+		"CSRF":      "",
+		"User":      models.PublicUser{},
+		"Pictures":  []models.Picture{},
+		"Guides":    guides.All(),
+		"Contact":   models.Contact{},
+		"Contacts":  []models.Contact{},
+		"Reports":   []models.Incident{},
+		"Countries": countries.All(),
+		"Year":      time.Now().Year(),
 	}
 	if session != nil {
 		data["SignedIn"] = true
@@ -273,6 +285,7 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 		}
 		if contacts, err := s.store.Contacts(r.Context(), session.User.ID); err == nil && len(contacts) > 0 {
 			data["Contact"] = contacts[0]
+			data["Contacts"] = contacts
 		}
 		if reports, err := s.store.Incidents(r.Context(), session.User.ID, 20); err == nil {
 			data["Reports"] = reports
@@ -295,6 +308,7 @@ func (s *Server) bootstrap(ctx context.Context, data map[string]any) string {
 		"user":     data["User"],
 		"pictures": data["Pictures"],
 		"contact":  data["Contact"],
+		"contacts": data["Contacts"],
 		"reports":  data["Reports"],
 		"version":  Version,
 	}

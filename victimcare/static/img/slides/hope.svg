@@ -1,22 +1,43 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Safety and hope">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="A person standing safe under a shelter at sunrise with a growing plant">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="dawn" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#0f766e"/>
-      <stop offset="1" stop-color="#155e75"/>
+      <stop offset="0.55" stop-color="#3f9c7f"/>
+      <stop offset="1" stop-color="#ffd9a0"/>
     </linearGradient>
-    <radialGradient id="sun" cx="0.5" cy="0.45" r="0.5">
-      <stop offset="0" stop-color="#fff3c4" stop-opacity="0.9"/>
-      <stop offset="1" stop-color="#fff3c4" stop-opacity="0"/>
-    </radialGradient>
   </defs>
-  <rect width="800" height="600" fill="url(#g)"/>
-  <circle cx="400" cy="260" r="260" fill="url(#sun)"/>
-  <circle cx="400" cy="250" r="70" fill="#ffe8a3"/>
-  <path d="M0 470c120-60 220 40 340 10s220-120 460-40v160H0z" fill="#083344" opacity="0.75"/>
-  <path d="M0 520c140-50 240 30 360 10s220-90 440-20v90H0z" fill="#052f3d"/>
-  <g transform="translate(400 400)" fill="none" stroke="#ffe8a3" stroke-width="10" stroke-linecap="round" opacity="0.9">
-    <path d="M0 60c0-40 30-70 70-70s70 30 70 70"/>
-    <path d="M-40 20c-20-30-6-60 24-66"/>
-    <path d="M40 20c20-30 6-60-24-66"/>
+  <rect width="800" height="600" fill="url(#dawn)"/>
+  <circle cx="400" cy="300" r="120" fill="#ffe8a3" opacity="0.55"/>
+  <circle cx="400" cy="300" r="74" fill="#fff3c4"/>
+
+  <!-- hills -->
+  <path d="M0 420c120-70 230 10 340-20s220-90 460-30v230H0z" fill="#0b5d56" opacity="0.85"/>
+  <path d="M0 480c140-60 250 20 380-6s210-70 420-20v146H0z" fill="#08423d"/>
+
+  <!-- shelter / house -->
+  <g transform="translate(215 330)">
+    <path d="M-95 20L0 -60l95 80z" fill="#e2544f"/>
+    <rect x="-72" y="20" width="144" height="130" rx="8" fill="#f6f0e4"/>
+    <rect x="-22" y="66" width="44" height="84" rx="6" fill="#b8763f"/>
+    <rect x="34" y="42" width="30" height="30" rx="5" fill="#8fd3e8"/>
+    <circle cx="12" cy="104" r="4" fill="#fff3c4"/>
+  </g>
+
+  <!-- person standing safe -->
+  <g transform="translate(560 300)">
+    <circle cx="0" cy="-70" r="28" fill="#a9714b"/>
+    <path d="M-30 8c0-32 14-52 30-52s30 20 30 52z" fill="#ffffff"/>
+    <rect x="-28" y="6" width="22" height="72" rx="10" fill="#3f4a5a"/>
+    <rect x="6" y="6" width="22" height="72" rx="10" fill="#3f4a5a"/>
+    <path d="M-26 -24c-14 14-18 34-14 52l18 4c4-16 8-28 16-36z" fill="#ffffff"/>
+    <circle cx="-24" cy="30" r="12" fill="#a9714b"/>
+  </g>
+
+  <!-- plant growing -->
+  <g transform="translate(400 520)">
+    <path d="M0 0v-56" stroke="#6ee7a8" stroke-width="9" stroke-linecap="round"/>
+    <path d="M0 -30c-26-4-38-22-38-42 24 0 38 16 38 42z" fill="#6ee7a8"/>
+    <path d="M0 -44c26-6 38-24 38-46-26 2-38 20-38 46z" fill="#4ade80"/>
+    <path d="M-42 4h84" stroke="#6ee7a8" stroke-width="8" stroke-linecap="round" opacity="0.6"/>
   </g>
 </svg>

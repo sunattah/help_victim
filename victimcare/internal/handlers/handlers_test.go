@@ -95,11 +95,31 @@ func postJSON(t *testing.T, client *http.Client, url, csrf, body string) (int, m
 	return resp.StatusCode, payload
 }
 
+func deleteJSON(t *testing.T, client *http.Client, url, csrf string) (int, map[string]any) {
+	t.Helper()
+	req, err := http.NewRequest(http.MethodDelete, url, nil)
+	if err != nil {
+		t.Fatalf("new request: %v", err)
+	}
+	if csrf != "" {
+		req.Header.Set("X-CSRF-Token", csrf)
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatalf("do request: %v", err)
+	}
+	defer resp.Body.Close()
+	payload := map[string]any{}
+	data, _ := io.ReadAll(resp.Body)
+	json.Unmarshal(data, &payload)
+	return resp.StatusCode, payload
+}
+
 func TestSignupLoginAndSession(t *testing.T) {
 	server, client := newTestServer(t)
 
 	status, payload := postJSON(t, client, server.URL+"/api/v1/auth/signup", "",
-		`{"firstName":"Amaka","secondName":"Obi","email":"amaka@example.com","state":"Lagos","nation":"Nigeria","password":"secret1234"}`)
+		`{"firstName":"Amaka","secondName":"Obi","email":"amaka@example.com","country":"Nigeria","state":"Lagos","nation":"Nigeria","password":"secret1234"}`)
 	if status != http.StatusCreated {
 		t.Fatalf("signup status = %d, payload = %v", status, payload)
 	}
@@ -121,7 +141,7 @@ func TestSignupLoginAndSession(t *testing.T) {
 	other, _ := cookiejar.New(nil)
 	otherClient := &http.Client{Jar: other}
 	status, _ = postJSON(t, otherClient, server.URL+"/api/v1/auth/signup", "",
-		`{"firstName":"Amaka","secondName":"Obi","email":"amaka@example.com","state":"Lagos","nation":"Nigeria","password":"secret1234"}`)
+		`{"firstName":"Amaka","secondName":"Obi","email":"amaka@example.com","country":"Nigeria","state":"Lagos","nation":"Nigeria","password":"secret1234"}`)
 	if status != http.StatusConflict {
 		t.Fatalf("duplicate signup status = %d, want %d", status, http.StatusConflict)
 	}
@@ -145,7 +165,7 @@ func TestLoginRejectsWrongPassword(t *testing.T) {
 	server, client := newTestServer(t)
 
 	postJSON(t, client, server.URL+"/api/v1/auth/signup", "",
-		`{"firstName":"Tunde","secondName":"Ayo","email":"tunde@example.com","state":"Abuja","nation":"Nigeria","password":"secret1234"}`)
+		`{"firstName":"Tunde","secondName":"Ayo","email":"tunde@example.com","country":"Nigeria","state":"Abuja","nation":"Nigeria","password":"secret1234"}`)
 
 	fresh, _ := cookiejar.New(nil)
 	freshClient := &http.Client{Jar: fresh}
@@ -159,11 +179,11 @@ func TestLoginRejectsWrongPassword(t *testing.T) {
 func TestProfileAndSettingsUpdate(t *testing.T) {
 	server, client := newTestServer(t)
 	postJSON(t, client, server.URL+"/api/v1/auth/signup", "",
-		`{"firstName":"Amaka","secondName":"Obi","email":"amaka@example.com","state":"Lagos","nation":"Nigeria","password":"secret1234"}`)
+		`{"firstName":"Amaka","secondName":"Obi","email":"amaka@example.com","country":"Nigeria","state":"Lagos","nation":"Nigeria","password":"secret1234"}`)
 	csrf := csrfToken(t, client, server.URL)
 
 	req, _ := http.NewRequest(http.MethodPatch, server.URL+"/api/v1/users/me",
-		bytes.NewBufferString(`{"firstName":"Amaka","secondName":"Obi","email":"amaka@example.com","state":"Enugu","nation":"Nigeria","password":""}`))
+		bytes.NewBufferString(`{"firstName":"Amaka","secondName":"Obi","email":"amaka@example.com","country":"Nigeria","state":"Enugu","nation":"Nigeria","password":""}`))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-CSRF-Token", csrf)
 	resp, err := client.Do(req)
@@ -217,7 +237,7 @@ func TestProfileAndSettingsUpdate(t *testing.T) {
 func TestCSRFIsRequiredForMutations(t *testing.T) {
 	server, client := newTestServer(t)
 	postJSON(t, client, server.URL+"/api/v1/auth/signup", "",
-		`{"firstName":"Amaka","secondName":"Obi","email":"amaka@example.com","state":"Lagos","nation":"Nigeria","password":"secret1234"}`)
+		`{"firstName":"Amaka","secondName":"Obi","email":"amaka@example.com","country":"Nigeria","state":"Lagos","nation":"Nigeria","password":"secret1234"}`)
 
 	status, payload := postJSON(t, client, server.URL+"/api/v1/contacts", "",
 		`{"name":"Chidi","phone":"+2348012345678"}`)
@@ -229,7 +249,7 @@ func TestCSRFIsRequiredForMutations(t *testing.T) {
 func TestContactAndIncidentFlow(t *testing.T) {
 	server, client := newTestServer(t)
 	postJSON(t, client, server.URL+"/api/v1/auth/signup", "",
-		`{"firstName":"Amaka","secondName":"Obi","email":"amaka@example.com","state":"Lagos","nation":"Nigeria","password":"secret1234"}`)
+		`{"firstName":"Amaka","secondName":"Obi","email":"amaka@example.com","country":"Nigeria","state":"Lagos","nation":"Nigeria","password":"secret1234"}`)
 	csrf := csrfToken(t, client, server.URL)
 
 	status, payload := postJSON(t, client, server.URL+"/api/v1/contacts", csrf,
@@ -258,7 +278,7 @@ func TestContactAndIncidentFlow(t *testing.T) {
 func TestPictureUpload(t *testing.T) {
 	server, client := newTestServer(t)
 	postJSON(t, client, server.URL+"/api/v1/auth/signup", "",
-		`{"firstName":"Amaka","secondName":"Obi","email":"amaka@example.com","state":"Lagos","nation":"Nigeria","password":"secret1234"}`)
+		`{"firstName":"Amaka","secondName":"Obi","email":"amaka@example.com","country":"Nigeria","state":"Lagos","nation":"Nigeria","password":"secret1234"}`)
 	csrf := csrfToken(t, client, server.URL)
 
 	body := &bytes.Buffer{}
@@ -313,7 +333,7 @@ func TestPictureUpload(t *testing.T) {
 func TestUploadedFileMustBeAnImage(t *testing.T) {
 	server, client := newTestServer(t)
 	postJSON(t, client, server.URL+"/api/v1/auth/signup", "",
-		`{"firstName":"Amaka","secondName":"Obi","email":"amaka@example.com","state":"Lagos","nation":"Nigeria","password":"secret1234"}`)
+		`{"firstName":"Amaka","secondName":"Obi","email":"amaka@example.com","country":"Nigeria","state":"Lagos","nation":"Nigeria","password":"secret1234"}`)
 	csrf := csrfToken(t, client, server.URL)
 
 	body := &bytes.Buffer{}
@@ -354,7 +374,7 @@ func TestIndexPageRenders(t *testing.T) {
 	}
 
 	postJSON(t, client, server.URL+"/api/v1/auth/signup", "",
-		`{"firstName":"Amaka","secondName":"Obi","email":"amaka@example.com","state":"Lagos","nation":"Nigeria","password":"secret1234"}`)
+		`{"firstName":"Amaka","secondName":"Obi","email":"amaka@example.com","country":"Nigeria","state":"Lagos","nation":"Nigeria","password":"secret1234"}`)
 
 	resp, err = client.Get(server.URL + "/")
 	if err != nil {

@@ -1,33 +1,44 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Support network">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Two people supporting each other, one with an arm around the other">
   <defs>
-    <linearGradient id="g" x1="0" y1="1" x2="1" y2="0">
-      <stop offset="0" stop-color="#b23a48"/>
-      <stop offset="1" stop-color="#f0803c"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7c873"/>
+      <stop offset="0.55" stop-color="#e2755f"/>
+      <stop offset="1" stop-color="#9d2f3f"/>
     </linearGradient>
-    <radialGradient id="h" cx="0.5" cy="0.1" r="0.9">
-      <stop offset="0" stop-color="#fff3c4" stop-opacity="0.45"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
   </defs>
-  <rect width="800" height="600" fill="url(#g)"/>
-  <rect width="800" height="600" fill="url(#h)"/>
-  <circle cx="400" cy="120" r="90" fill="#fff3c4" opacity="0.35"/>
-  <g fill="#ffffff" opacity="0.9">
-    <g transform="translate(200 330)">
-      <circle cx="0" cy="-70" r="42"/>
-      <path d="M-70 90c0-40 31-70 70-70s70 30 70 70z"/>
-    </g>
-    <g transform="translate(400 290)">
-      <circle cx="0" cy="-80" r="48"/>
-      <path d="M-80 100c0-46 36-80 80-80s80 34 80 80z"/>
-    </g>
-    <g transform="translate(600 330)">
-      <circle cx="0" cy="-70" r="42"/>
-      <path d="M-70 90c0-40 31-70 70-70s70 30 70 70z"/>
-    </g>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <circle cx="400" cy="150" r="90" fill="#fff3c4" opacity="0.5"/>
+  <g fill="#ffffff" opacity="0.12">
+    <circle cx="120" cy="480" r="150"/>
+    <circle cx="700" cy="140" r="110"/>
   </g>
-  <g stroke="#ffffff" stroke-width="12" stroke-linecap="round" opacity="0.7" fill="none">
-    <path d="M245 330c40-30 70-20 95-5"/>
-    <path d="M555 330c-40-30-70-20-95-5"/>
+
+  <!-- figure on the left: supporting -->
+  <g transform="translate(255 330)">
+    <circle cx="0" cy="-120" r="42" fill="#3b2a28"/>
+    <circle cx="0" cy="-120" r="38" fill="#8a5a3b"/>
+    <path d="M-46 90c0-52 20-84 46-84s46 32 46 84z" fill="#2f6f8f"/>
+    <rect x="-52" y="-74" width="104" height="18" rx="9" fill="#245a73"/>
+    <!-- arm around the other figure -->
+    <path d="M34 -58c40 4 76 22 96 48l-24 20c-18-22-46-36-78-40z" fill="#2f6f8f"/>
+    <circle cx="130" cy="-4" r="17" fill="#8a5a3b"/>
+    <rect x="-46" y="88" width="36" height="96" rx="16" fill="#274c63"/>
+    <rect x="10" y="88" width="36" height="96" rx="16" fill="#274c63"/>
+  </g>
+
+  <!-- figure on the right: leaning -->
+  <g transform="translate(545 340)">
+    <circle cx="0" cy="-110" r="40" fill="#2b1f1d"/>
+    <circle cx="0" cy="-110" r="36" fill="#a9714b"/>
+    <path d="M-44 84c0-48 18-78 44-78s44 30 44 78z" fill="#f2f4f8"/>
+    <path d="M-44 -60c-26 12-44 40-50 74l26 10c6-28 18-48 36-58z" fill="#f2f4f8"/>
+    <circle cx="-92" cy="18" r="16" fill="#a9714b"/>
+    <rect x="-42" y="82" width="34" height="98" rx="15" fill="#c9cfd8"/>
+    <rect x="8" y="82" width="34" height="98" rx="15" fill="#c9cfd8"/>
+  </g>
+
+  <!-- shared heart -->
+  <g transform="translate(400 120)">
+    <path d="M0 26C-34 4-46-14-46-28a24 24 0 0 1 46-8 24 24 0 0 1 46 8c0 14-12 32-46 54z" fill="#ffffff" opacity="0.92"/>
   </g>
 </svg>

@@ -17,15 +17,19 @@
     csrf: bootstrap.csrf || '',
     pictures: bootstrap.pictures || [],
     contact: bootstrap.contact || {},
+    contacts: bootstrap.contacts || [],
     reports: bootstrap.reports || [],
     tab: 'home',
     authMode: 'login',
     reportType: 'Accident',
     countdownTimer: null,
-    countdownSeconds: 5
+    countdownSeconds: 5,
+    practice: false,
+    lastMessage: ''
   };
 
   const views = ['home', 'report', 'aid', 'contacts', 'settings'];
+  let countryCache = null;
 
   /* ------------------------------------------------------------ helpers */
 
@@ -90,6 +94,105 @@
     element.classList.toggle('error', !!isError);
   }
 
+  /* -------------------------------------------------- country and state */
+
+  // loadCountries fetches the country and state list once and keeps it.
+  async function loadCountries() {
+    if (countryCache) return countryCache;
+    try {
+      const result = await api('/api/v1/countries');
+      countryCache = result.countries || [];
+    } catch (e) {
+      countryCache = [];
+    }
+    return countryCache;
+  }
+
+  // fillStates rebuilds the state dropdown for the country that is selected.
+  // Countries without a known list get a single "type it" option.
+  async function fillStates(countrySelect, stateSelect, selected) {
+    if (!countrySelect || !stateSelect) return;
+    const country = countrySelect.value;
+    const list = await loadCountries();
+    const match = list.find((item) => item.name === country);
+    const regions = match && match.regions ? match.regions : [];
+
+    stateSelect.innerHTML = '';
+    stateSelect.disabled = false;
+
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = regions.length ? 'Choose a state or region' : 'Choose a state or region';
+    stateSelect.appendChild(placeholder);
+
+    regions.forEach((region) => {
+      const option = document.createElement('option');
+      option.value = region;
+      option.textContent = region;
+      stateSelect.appendChild(option);
+    });
+
+    const other = document.createElement('option');
+    other.value = '__other__';
+    other.textContent = 'Other (not listed)';
+    stateSelect.appendChild(other);
+
+    if (selected) {
+      const found = Array.prototype.some.call(stateSelect.options, (option) => option.value === selected);
+      stateSelect.value = found ? selected : '__other__';
+      if (stateSelect.value === '__other__') {
+        const custom = document.createElement('option');
+        custom.value = selected;
+        custom.textContent = selected;
+        stateSelect.appendChild(custom);
+        stateSelect.value = selected;
+      }
+    }
+  }
+
+  // chosenState returns the state the user picked, resolving the "other" option.
+  function chosenState(stateSelect) {
+    if (!stateSelect) return '';
+    if (stateSelect.value === '__other__') {
+      const custom = window.prompt('Type the name of your state or region');
+      return custom ? custom.trim() : '';
+    }
+    return stateSelect.value.trim();
+  }
+
+  /* ---------------------------------------------------- password rules */
+
+  function passwordChecks(password) {
+    return {
+      length: password.length >= 8,
+      letter: /[A-Za-z]/.test(password),
+      digit: /[0-9]/.test(password)
+    };
+  }
+
+  function updatePasswordRules() {
+    const input = $('signup-password');
+    if (!input) return;
+    const password = input.value;
+    const checks = passwordChecks(password);
+    document.querySelectorAll('#password-rules li').forEach((item) => {
+      const rule = item.dataset.rule;
+      item.classList.toggle('is-met', !!checks[rule]);
+    });
+
+    const meter = $('strength-meter');
+    if (!meter) return;
+    meter.hidden = password.length === 0;
+    const score = Object.keys(checks).filter((key) => checks[key]).length;
+    const fill = $('strength-fill');
+    const label = $('strength-label');
+    if (!fill || !label) return;
+    const percent = (score / 3) * 100;
+    fill.style.width = percent + '%';
+    fill.dataset.score = String(score);
+    label.textContent = score === 3 ? 'Strong' : score === 2 ? 'Fair' : 'Weak';
+  }
+
   /* -------------------------------------------------------- app screens */
 
   function showScreen(screen) {
@@ -107,10 +210,13 @@
       if (button.dataset.tab === next) button.setAttribute('aria-current', 'page');
       else button.removeAttribute('aria-current');
     });
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', '#' + next);
+    }
     if (next === 'report') renderReports();
     if (next === 'contacts') {
-      $('contact-name').value = state.contact.name || '';
-      $('contact-phone').value = state.contact.phone || '';
+      renderContacts();
+      resetContactForm();
       $('emergency-call').href = 'tel:' + (state.user.emergencyNumber || '112');
     }
     if (next === 'settings') fillSettings();
@@ -151,12 +257,19 @@
           firstName: $('signup-first-name').value.trim(),
           secondName: $('signup-second-name').value.trim(),
           email: $('signup-email').value.trim(),
-          state: $('signup-state').value.trim(),
+          country: $('signup-country').value,
+          state: chosenState($('signup-state')),
           nation: $('signup-nation').value.trim(),
           password: $('signup-password').value
         };
-        if (!payload.firstName || !payload.secondName || !payload.email || !payload.state || !payload.nation || !payload.password) {
+        if (!payload.firstName || !payload.secondName || !payload.email || !payload.country ||
+            !payload.state || !payload.nation || !payload.password) {
           errorBox.textContent = 'Complete every field to continue.';
+          return;
+        }
+        const checks = passwordChecks(payload.password);
+        if (!checks.length || !checks.letter || !checks.digit) {
+          errorBox.textContent = 'Password is incorrect. It needs at least 8 characters, with letters and numbers.';
           return;
         }
         if ($('signup-password').value !== $('signup-confirm-password').value) {
@@ -214,13 +327,15 @@
   function closeOverlay() {
     clearInterval(state.countdownTimer);
     state.countdownTimer = null;
+    state.practice = false;
     $('overlay').hidden = true;
     switchTab('home');
     $('sos').focus();
   }
 
-  function startCountdown() {
+  function startCountdown(practice) {
     clearInterval(state.countdownTimer);
+    state.practice = !!practice;
     let seconds = state.user.countdownSeconds || 5;
     $('countdown-number').textContent = seconds;
     showOverlay('countdown');
@@ -230,7 +345,7 @@
       if (seconds <= 0) {
         clearInterval(state.countdownTimer);
         state.countdownTimer = null;
-        prepareAlert('SOS emergency', '');
+        prepareAlert(state.practice ? 'Practice run' : 'SOS emergency', '');
       } else {
         $('countdown-number').textContent = seconds;
       }
@@ -247,39 +362,82 @@
   }
 
   async function prepareAlert(kind, note) {
+    const practice = state.practice;
     showOverlay('location');
 
     const position = await resolveLocation();
     const message = buildMessage(kind, note, position);
+    state.lastMessage = message;
 
-    try {
-      const result = await postJSON('/api/v1/incidents', {
-        kind: kind,
-        note: note || '',
-        latitude: position ? position.coords.latitude : null,
-        longitude: position ? position.coords.longitude : null,
-        locationShared: !!position
-      });
-      state.reports = result.incidents || [];
-    } catch (e) {
-      /* the alert still has to be usable when the server is unreachable */
+    if (!practice) {
+      try {
+        const result = await postJSON('/api/v1/incidents', {
+          kind: kind,
+          note: note || '',
+          latitude: position ? position.coords.latitude : null,
+          longitude: position ? position.coords.longitude : null,
+          locationShared: !!position
+        });
+        state.reports = result.incidents || [];
+      } catch (e) {
+        /* the alert still has to be usable when the server is unreachable */
+      }
+
+      if (state.user.vibrate && navigator.vibrate) navigator.vibrate([200, 100, 200]);
     }
-
-    if (state.user.vibrate && navigator.vibrate) navigator.vibrate([200, 100, 200]);
 
     const number = state.user.emergencyNumber || '112';
     $('call-link').href = 'tel:' + number;
     $('call-label').textContent = 'Call ' + number;
 
-    const hasContact = !!state.contact.phone;
+    const primary = primaryContact();
+    const hasContact = !!(primary && primary.phone);
     $('text-link').hidden = !hasContact;
     $('no-contact').hidden = hasContact;
     if (hasContact) {
-      $('text-link').href = 'sms:' + state.contact.phone + '?body=' + encodeURIComponent(message);
-      $('text-label').textContent = 'Text ' + (state.contact.name || 'my contact');
+      $('text-link').href = 'sms:' + primary.phone + '?body=' + encodeURIComponent(message);
+      $('text-label').textContent = 'Text ' + (primary.name || 'my contact');
     }
+
+    $('ready-title').textContent = practice ? 'Practice run finished' : 'Alert ready';
+    $('ready-description').textContent = practice
+      ? 'This was a practice run. Nothing was sent and nothing was saved.'
+      : 'Choose an option below to finish from your device. Nothing has been sent yet.';
+
     showOverlay('ready');
     $('close-alert').focus();
+  }
+
+  // primaryContact returns the contact that text alerts go to.
+  function primaryContact() {
+    const list = state.contacts || [];
+    if (!list.length) return state.contact && state.contact.phone ? state.contact : null;
+    return list.find((contact) => contact.primary) || list[0];
+  }
+
+  async function copyAlertMessage() {
+    const button = $('copy-alert');
+    if (!state.lastMessage) {
+      setStatus($('alert-note'), 'There is no message to copy yet.', true);
+      return;
+    }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(state.lastMessage);
+      } else {
+        const area = document.createElement('textarea');
+        area.value = state.lastMessage;
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand('copy');
+        document.body.removeChild(area);
+      }
+      button.textContent = 'Copied';
+      setTimeout(() => { button.textContent = 'Copy the message'; }, 2000);
+    } catch (e) {
+      button.textContent = 'Copy failed';
+      setTimeout(() => { button.textContent = 'Copy the message'; }, 2000);
+    }
   }
 
   function resolveLocation() {
@@ -321,14 +479,105 @@
     });
   }
 
+  /* ----------------------------------------------------------- contacts */
+
+  function renderContacts() {
+    const list = $('contact-list');
+    if (!list) return;
+    list.innerHTML = '';
+    state.contacts.forEach((contact) => {
+      const item = document.createElement('article');
+      item.className = 'contact-item' + (contact.primary ? ' is-primary' : '');
+      item.dataset.id = contact.id;
+
+      const info = document.createElement('div');
+      const name = document.createElement('strong');
+      name.className = 'contact-name';
+      name.textContent = contact.name;
+      const phone = document.createElement('span');
+      phone.className = 'muted contact-phone';
+      phone.textContent = contact.phone;
+      info.append(name, phone);
+
+      const actions = document.createElement('div');
+      actions.className = 'contact-actions';
+
+      if (contact.primary) {
+        const badge = document.createElement('span');
+        badge.className = 'badge badge-primary';
+        badge.textContent = 'Primary';
+        actions.appendChild(badge);
+      } else {
+        const primary = document.createElement('button');
+        primary.type = 'button';
+        primary.className = 'link-button';
+        primary.dataset.contactAction = 'primary';
+        primary.dataset.id = contact.id;
+        primary.textContent = 'Make primary';
+        actions.appendChild(primary);
+      }
+
+      const edit = document.createElement('button');
+      edit.type = 'button';
+      edit.className = 'link-button';
+      edit.dataset.contactAction = 'edit';
+      edit.dataset.id = contact.id;
+      edit.dataset.name = contact.name;
+      edit.dataset.phone = contact.phone;
+      edit.textContent = 'Edit';
+
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'link-button danger';
+      remove.dataset.contactAction = 'delete';
+      remove.dataset.id = contact.id;
+      remove.textContent = 'Delete';
+
+      actions.append(edit, remove);
+      item.append(info, actions);
+      list.appendChild(item);
+    });
+    $('contacts-empty').hidden = state.contacts.length > 0;
+  }
+
+  function resetContactForm() {
+    $('contact-id').value = '';
+    $('contact-name').value = '';
+    $('contact-phone').value = '';
+    $('contact-form-title').textContent = 'Add a contact';
+    $('cancel-contact-edit').hidden = true;
+  }
+
+  async function contactAction(action, id, name, phone) {
+    const status = $('contact-status');
+    try {
+      let result;
+      if (action === 'primary') {
+        result = await postJSON('/api/v1/contacts/' + id + '/primary', {});
+      } else if (action === 'delete') {
+        result = await api('/api/v1/contacts/' + id, { method: 'DELETE' });
+      } else {
+        result = await postJSON('/api/v1/contacts', { id: id, name: name, phone: phone });
+      }
+      state.contacts = result.contacts || [];
+      state.contact = primaryContact() || {};
+      renderContacts();
+      setStatus(status, action === 'primary' ? 'Primary contact updated.' :
+        action === 'delete' ? 'Contact removed.' : 'Contact saved.', false);
+    } catch (error) {
+      setStatus(status, error.message, true);
+    }
+  }
+
   /* ----------------------------------------------------------- settings */
 
   function fillSettings() {
     $('profile-first-name').value = state.user.firstName || '';
     $('profile-second-name').value = state.user.secondName || '';
     $('profile-email').value = state.user.email || '';
-    $('profile-state').value = state.user.state || '';
     $('profile-nation').value = state.user.nation || '';
+    $('profile-country').value = state.user.country || '';
+    fillStates($('profile-country'), $('profile-state'), state.user.state || '');
     $('setting-number').value = state.user.emergencyNumber || '112';
     $('setting-location').checked = !!state.user.shareLocation;
     $('setting-vibration').checked = !!state.user.vibrate;
@@ -403,7 +652,8 @@
         firstName: $('profile-first-name').value.trim(),
         secondName: $('profile-second-name').value.trim(),
         email: $('profile-email').value.trim(),
-        state: $('profile-state').value.trim(),
+        country: $('profile-country').value,
+        state: chosenState($('profile-state')),
         nation: $('profile-nation').value.trim(),
         password: $('profile-password').value
       });
@@ -732,27 +982,68 @@
     $('send-report').addEventListener('click', async () => {
       const note = $('note').value.trim();
       $('note').value = '';
+      state.practice = false;
       await prepareAlert(state.reportType, note);
     });
 
-    $('sos').addEventListener('click', startCountdown);
+    $('sos').addEventListener('click', () => startCountdown(false));
+    $('practice').addEventListener('click', () => startCountdown(true));
     $('cancel-alert').addEventListener('click', closeOverlay);
     $('close-alert').addEventListener('click', closeOverlay);
+    $('copy-alert').addEventListener('click', copyAlertMessage);
 
     $('contact-form').addEventListener('submit', async (event) => {
       event.preventDefault();
       const status = $('contact-status');
+      const id = parseInt($('contact-id').value, 10) || 0;
       try {
         const result = await postJSON('/api/v1/contacts', {
+          id: id,
           name: $('contact-name').value.trim(),
           phone: $('contact-phone').value.trim()
         });
-        state.contact = result.contact;
-        setStatus(status, 'Contact updated.', false);
+        state.contacts = result.contacts || [];
+        state.contact = primaryContact() || {};
+        renderContacts();
+        resetContactForm();
+        setStatus(status, id ? 'Contact updated.' : 'Contact saved.', false);
       } catch (error) {
         setStatus(status, error.message, true);
       }
     });
+
+    $('cancel-contact-edit').addEventListener('click', () => {
+      resetContactForm();
+      setStatus($('contact-status'), '', false);
+    });
+
+    $('contact-list').addEventListener('click', (event) => {
+      const button = event.target.closest('[data-contact-action]');
+      if (!button) return;
+      const action = button.dataset.contactAction;
+      const id = parseInt(button.dataset.id, 10);
+      if (action === 'edit') {
+        $('contact-id').value = id;
+        $('contact-name').value = button.dataset.name || '';
+        $('contact-phone').value = button.dataset.phone || '';
+        $('contact-form-title').textContent = 'Edit contact';
+        $('cancel-contact-edit').hidden = false;
+        $('contact-name').focus();
+        return;
+      }
+      contactAction(action, id);
+    });
+
+    // Country and state dropdowns.
+    [['signup-country', 'signup-state'], ['profile-country', 'profile-state']].forEach((pair) => {
+      const countrySelect = $(pair[0]);
+      const stateSelect = $(pair[1]);
+      if (!countrySelect || !stateSelect) return;
+      countrySelect.addEventListener('change', () => fillStates(countrySelect, stateSelect));
+    });
+
+    $('signup-password').addEventListener('input', updatePasswordRules);
+    $('signup-password').addEventListener('blur', updatePasswordRules);
 
     $('profile-form').addEventListener('submit', saveProfile);
     $('settings-form').addEventListener('submit', saveSettings);
@@ -824,12 +1115,61 @@
     });
   }
 
+  /* ------------------------------------------------- install and offline */
+
+  function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/static/sw.js').catch(() => {
+        /* the app still works without the offline cache */
+      });
+    });
+  }
+
+  function setupInstallPrompt() {
+    const button = $('install-app');
+    if (!button) return;
+    let deferred = null;
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      deferred = event;
+      button.hidden = false;
+      setStatus($('install-note'), 'Victim Care can be installed on this device.', false);
+    });
+
+    button.addEventListener('click', async () => {
+      if (!deferred) {
+        setStatus($('install-note'), 'Use the browser menu and choose "Add to home screen".', false);
+        return;
+      }
+      deferred.prompt();
+      const choice = await deferred.userChoice;
+      if (choice.outcome === 'accepted') {
+        button.hidden = true;
+        setStatus($('install-note'), 'Victim Care was installed.', false);
+      }
+      deferred = null;
+    });
+
+    window.addEventListener('appinstalled', () => {
+      button.hidden = true;
+      setStatus($('install-note'), 'Victim Care was installed.', false);
+    });
+  }
+
   /* --------------------------------------------------------------- boot */
 
   function boot() {
+    // The deep link has to be read before the first tab switch replaces the
+    // hash in the address bar.
+    const wanted = (window.location.hash || '').replace('#', '');
+
     wire();
     initResize();
     initPictureArea();
+    registerServiceWorker();
+    setupInstallPrompt();
 
     if (state.signedIn) {
       applyMotion(state.user.motion !== false);
@@ -837,9 +1177,18 @@
       showScreen('app');
       switchTab('home');
       renderGallery(state.pictures);
+      renderContacts();
+      fillStates($('profile-country'), $('profile-state'), state.user.state || '');
+
+      // Deep link: /#settings opens the settings tab straight away.
+      if (views.indexOf(wanted) !== -1) switchTab(wanted);
     } else {
       showScreen('welcome');
       switchTab('home');
+      updatePasswordRules();
+
+      // Deep link: /#signup opens the sign up form straight away.
+      if (wanted === 'signup' || wanted === 'login') openAuth(wanted);
     }
   }
 

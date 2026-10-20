@@ -16,6 +16,7 @@ type User struct {
 	PasswordHash  string
 	State         string
 	Nation        string
+	Country       string
 	Theme         string
 	Motion        bool
 	EmergencyNo   string
@@ -64,6 +65,7 @@ type PublicUser struct {
 	Email         string `json:"email"`
 	State         string `json:"state"`
 	Nation        string `json:"nation"`
+	Country       string `json:"country"`
 	Theme         string `json:"theme"`
 	Motion        bool   `json:"motion"`
 	EmergencyNo   string `json:"emergencyNumber"`

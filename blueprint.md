@@ -164,8 +164,22 @@ App shell  [header: brand · + Create · Sign out]  [nav: Home · Report · Firs
 ### 6.2 Auth
 
 - Single panel reused for both modes.
-- **Log in**: Name, Email. **Sign up**: First name, Second name, Email, State of
-  residence, Nation of origin, Password, Confirm password (+ Show/Hide toggles).
+- **Log in**: Email, Password. **Sign up**: First name, Second name, Email,
+  **Country of residence (dropdown)**, **State / Region (dropdown)**, Nation of
+  origin, Password, Confirm password (+ Show/Hide toggles).
+- **Country comes before state.** The country is a dropdown with a visible
+  arrow; choosing it fills the state dropdown with the states, provinces or
+  regions of that country. Countries without a known list get a free-text
+  fallback ("Other (not listed)").
+- **The email must be an email address and nothing else.** The server rejects
+  addresses without a top level domain, with spaces, with a missing or
+  repeated `@`, with empty or consecutive dots, or with a numeric top level
+  domain. The message is *"Enter a valid email address, for example
+  name@example.com."*
+- **The password must contain letters and numbers.** At least 8 characters, at
+  least one letter and at least one digit. When it fails the error reads
+  *"Password is incorrect. It must contain at least one number."* The signup
+  form shows the three rules as a live checklist with a strength meter.
 - Client-side validation with an inline `role="alert"` error region; the server
   re-validates everything.
 - **Back to welcome** returns without side effects.
@@ -176,6 +190,9 @@ App shell  [header: brand · + Create · Sign out]  [nav: Home · Report · Firs
   You have 5 seconds to cancel. Calls and texts must be sent from your device."
 - **SOS**: 150 px circular red button with a pulsing halo, label "SOS", helper
   "Press for help". Animation respects `prefers-reduced-motion`.
+- **Practise the alert**: a dashed button under the SOS button that runs the
+  same countdown and shows the same prepared alert, but sends nothing and
+  saves nothing. It is there so a user can learn the flow before they need it.
 - Four tiles in a 2×2 grid (1 column below 365 px): Report, First aid, Contacts, Settings.
 
 ### 6.4 Settings — *the section the user asked for*
@@ -276,8 +293,13 @@ reviewed by a qualified first-aider before release.
 
 ### 6.7 Contacts
 
-- Primary contact: name + phone (E.164 hint, `+234…`), **Update contact**.
-- Status line confirms the save.
+- The user can save **several** contacts, not just one.
+- Every contact shows its name and phone number. One of them is the
+  **primary** contact; the text alert goes to the primary contact. The first
+  contact a user saves becomes the primary one automatically.
+- Each contact can be edited, deleted, or promoted to primary. Deleting the
+  primary contact promotes another one.
+- **Add a contact** form with name and phone (E.164 hint, `+234…`).
 - **Call emergency services** → `tel:` link using the number from Settings.
 
 ### 6.8 Alert overlay
@@ -287,8 +309,14 @@ Three states, one overlay, `role="alertdialog"`, `aria-modal="true"`:
 1. **Countdown** — "Preparing alert in", a huge number, **Cancel**.
 2. **Location** — "Getting your location…" while geolocation resolves.
 3. **Ready** — "Alert ready", a line explaining nothing has been sent yet, then
-   **Call `<number>`**, **Text `<contact>`** (hidden when no contact is set, with a
-   "Add an emergency contact in Contacts" message), and **Close**.
+   **Call `<number>`**, **Text `<primary contact>`** (hidden when no contact is
+   set, with a "Add an emergency contact in Contacts" message), **Copy the
+   message** (puts the full alert text on the clipboard so it can be pasted
+   into any messenger), and **Close**.
+
+A **practice run** shows the same three states but changes the heading to
+"Practice run finished", says that nothing was sent or saved, and records no
+report.
 
 ---
 
@@ -313,11 +341,20 @@ The pictures **move**:
   stop; the pictures remain visible as a static, gently cross-faded set.
 - **Implementation**: pure CSS (`@keyframes` on `transform: scale()/translate()`)
   plus a tiny JS controller for slide state and auto-advance. No image library.
-- **Content**: five slides — *care* (responders), *first aid*, *support*,
-  *response* and *hope*. The artwork ships with the app as SVG in
-  `static/img/slides/`, so the hero works with no network at all. Swapping in
-  photography is a matter of replacing the `<img>` sources; each slide carries
-  descriptive `alt` text and the decorative layers are `aria-hidden`.
+- **Content**: five **figurative** slides — drawn scenes with recognisable
+  people and objects rather than abstract shapes:
+  1. *Care* — a paramedic kneeling beside a person on the ground, holding a
+     bandage, with a first aid bag and a city skyline behind them.
+  2. *First aid* — an open first aid case with a white cross, a rolled
+     bandage, a plaster and a glove.
+  3. *Support* — one person with an arm around another, under a shared heart.
+  4. *Response* — an ambulance with a red cross and a blue light bar, driving
+     through a city at night.
+  5. *Hope* — a lit house, a sunrise and a person standing safe next to a
+     growing plant.
+
+  The artwork ships with the app as SVG in `static/img/slides/`, so the hero
+  works with no network at all. Each slide carries descriptive `alt` text.
 
 ---
 
@@ -373,8 +410,9 @@ users
   second_name    TEXT
   email          TEXT UNIQUE
   password_hash  TEXT        (bcrypt, cost 12)
-  state          TEXT
-  nation         TEXT
+  country        TEXT        country of residence, from the country list
+  state          TEXT        state / province / region of that country
+  nation         TEXT        nation of origin
   theme          TEXT        light | dark | calm | contrast | auto
   motion         INTEGER     1 = animation allowed, 0 = reduced
   emergency_no   TEXT        default '112'
@@ -404,7 +442,7 @@ contacts
   user_id    INTEGER FK
   name       TEXT
   phone      TEXT
-  is_primary INTEGER default 1
+  is_primary INTEGER     the contact that text alerts go to
   created_at TIMESTAMP
 
 incidents
@@ -416,6 +454,11 @@ incidents
   longitude       REAL NULL
   location_shared INTEGER
   created_at      TIMESTAMP
+
+countries (reference data, embedded in the binary)
+  name     TEXT
+  regions  TEXT[]   states / provinces / regions; empty when the country has
+                     no known list and accepts a free-text region
 ```
 
 ---
@@ -443,8 +486,10 @@ sensible status code.
 | POST | `/api/v1/users/me/password` | yes | Change password |
 | DELETE | `/api/v1/users/me` | yes | Delete account (needs password) |
 | GET | `/api/v1/contacts` | yes | List contacts |
-| POST | `/api/v1/contacts` | yes | Add / update the primary contact |
-| DELETE | `/api/v1/contacts/{id}` | yes | Remove a contact |
+| POST | `/api/v1/contacts` | yes | Add a contact, or update one when an `id` is sent |
+| DELETE | `/api/v1/contacts/{id}` | yes | Remove a contact (another one becomes primary) |
+| POST | `/api/v1/contacts/{id}/primary` | yes | Choose the contact that text alerts go to |
+| GET | `/api/v1/countries` | no | The country and state list used by the forms |
 | GET | `/api/v1/incidents` | yes | Past reports |
 | POST | `/api/v1/incidents` | yes | Record a prepared alert |
 | DELETE | `/api/v1/incidents` | yes | Clear history |
@@ -469,14 +514,15 @@ help_victim/
 │   ├── main.go               ← entry point, graceful shutdown
 │   ├── internal/
 │   │   ├── config/           ← env + defaults
-│   │   ├── models/           ← User, Session, Contact, Incident
+│   │   ├── models/           ← User, Picture, Contact, Incident
+│   │   ├── countries/        ← embedded country and state list
 │   │   ├── store/            ← SQLite (SQL) + migrations
-│   │   ├── auth/             ← bcrypt, sessions, CSRF, middleware
+│   │   ├── auth/             ← bcrypt, sessions, CSRF, cookies
 │   │   ├── handlers/         ← HTTP handlers (pages + JSON API)
 │   │   ├── imaging/          ← image validation + resize
 │   │   └── guides/           ← first-aid content
 │   ├── templates/            ← html/template pages
-│   └── static/               ← css, js, images
+│   └── static/               ← css, js, images, manifest, service worker
 └── data/                     ← runtime: victimcare.db + uploads/ (git-ignored)
 ```
 
@@ -549,6 +595,7 @@ This product is used by people in distress. Requirements that are **not negotiab
 | M6 | Animated picture area | Ken Burns drift, cross-fade, dots, pause, reduced motion | ✅ |
 | M7 | Contacts + guides | Primary contact, tel: links, first-aid content | ✅ |
 | M8 | Hardening | Security headers, rate limits, tests, offline cache | 🟡 tests and headers done; rate limiting still to come |
+| M9 | Upgrade round | Figurative artwork, country → state dropdowns, strict email, password rules, practice run, multiple contacts, installable app | ✅ |
 
 ---
 

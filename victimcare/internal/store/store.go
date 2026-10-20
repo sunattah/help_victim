@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash   TEXT    NOT NULL,
     state           TEXT    NOT NULL DEFAULT '',
     nation          TEXT    NOT NULL DEFAULT '',
+    country         TEXT    NOT NULL DEFAULT '',
     theme           TEXT    NOT NULL DEFAULT 'light',
     motion          INTEGER NOT NULL DEFAULT 1,
     emergency_no    TEXT    NOT NULL DEFAULT '112',
@@ -119,8 +120,39 @@ CREATE INDEX IF NOT EXISTS idx_incidents_user ON incidents(user_id);
 `
 
 func migrate(db *sql.DB) error {
-	_, err := db.Exec(schema)
-	return err
+	if _, err := db.Exec(schema); err != nil {
+		return err
+	}
+	// Older databases get the country column added on start up.
+	if !hasColumn(db, "users", "country") {
+		if _, err := db.Exec(`ALTER TABLE users ADD COLUMN country TEXT NOT NULL DEFAULT ''`); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// hasColumn reports whether a table already has a column.
+func hasColumn(db *sql.DB, table, column string) bool {
+	rows, err := db.Query(fmt.Sprintf("PRAGMA table_info(%s)", table))
+	if err != nil {
+		return false
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var cid int
+		var name, colType string
+		var notNull int
+		var dflt any
+		var pk int
+		if err := rows.Scan(&cid, &name, &colType, &notNull, &dflt, &pk); err != nil {
+			return false
+		}
+		if name == column {
+			return true
+		}
+	}
+	return false
 }
 
 // ---------------------------------------------------------------- users ----
@@ -129,11 +161,11 @@ func migrate(db *sql.DB) error {
 func (s *Store) CreateUser(ctx context.Context, u models.User) (models.User, error) {
 	now := time.Now().Unix()
 	res, err := s.db.ExecContext(ctx, `
-		INSERT INTO users (first_name, second_name, email, password_hash, state, nation,
+		INSERT INTO users (first_name, second_name, email, password_hash, state, nation, country,
 		                   theme, motion, emergency_no, share_location, vibrate, countdown_secs,
 		                   created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		u.FirstName, u.SecondName, strings.ToLower(u.Email), u.PasswordHash, u.State, u.Nation,
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		u.FirstName, u.SecondName, strings.ToLower(u.Email), u.PasswordHash, u.State, u.Nation, u.Country,
 		u.Theme, boolToInt(u.Motion), u.EmergencyNo, boolToInt(u.ShareLocation),
 		boolToInt(u.Vibrate), u.CountdownSecs, now, now)
 	if err != nil {
@@ -162,12 +194,12 @@ func (s *Store) UserByEmail(ctx context.Context, email string) (models.User, err
 }
 
 // UpdateProfile writes the editable profile fields of a user.
-func (s *Store) UpdateProfile(ctx context.Context, id int64, first, second, email, state, nation string) (models.User, error) {
+func (s *Store) UpdateProfile(ctx context.Context, id int64, first, second, email, state, nation, country string) (models.User, error) {
 	_, err := s.db.ExecContext(ctx, `
 		UPDATE users
-		   SET first_name = ?, second_name = ?, email = ?, state = ?, nation = ?, updated_at = ?
+		   SET first_name = ?, second_name = ?, email = ?, state = ?, nation = ?, country = ?, updated_at = ?
 		 WHERE id = ?`,
-		first, second, strings.ToLower(strings.TrimSpace(email)), state, nation, time.Now().Unix(), id)
+		first, second, strings.ToLower(strings.TrimSpace(email)), state, nation, country, time.Now().Unix(), id)
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			return models.User{}, ErrEmailTaken
@@ -206,7 +238,7 @@ func (s *Store) DeleteUser(ctx context.Context, id int64) error {
 	return err
 }
 
-const userSelect = `SELECT id, first_name, second_name, email, password_hash, state, nation,
+const userSelect = `SELECT id, first_name, second_name, email, password_hash, state, nation, country,
 	theme, motion, emergency_no, share_location, vibrate, countdown_secs, created_at, updated_at FROM users`
 
 type rowScanner interface {
@@ -217,7 +249,7 @@ func scanUser(row rowScanner) (models.User, error) {
 	var u models.User
 	var motion, share, vibrate int
 	var created, updated int64
-	err := row.Scan(&u.ID, &u.FirstName, &u.SecondName, &u.Email, &u.PasswordHash, &u.State, &u.Nation,
+	err := row.Scan(&u.ID, &u.FirstName, &u.SecondName, &u.Email, &u.PasswordHash, &u.State, &u.Nation, &u.Country,
 		&u.Theme, &motion, &u.EmergencyNo, &share, &vibrate, &u.CountdownSecs, &created, &updated)
 	if errors.Is(err, sql.ErrNoRows) {
 		return models.User{}, ErrNotFound
@@ -367,6 +399,120 @@ func (s *Store) DeletePicture(ctx context.Context, userID, id int64) error {
 }
 
 // ------------------------------------------------------------- contacts ----
+
+// AddContact stores a new contact and makes it the primary one when the user
+// has no contact yet.
+func (s *Store) AddContact(ctx context.Context, c models.Contact) (models.Contact, error) {
+	primary := c.Primary
+	if !primary {
+		existing, err := s.Contacts(ctx, c.UserID)
+		if err != nil {
+			return models.Contact{}, err
+		}
+		// The first contact of a user is the primary one.
+		for _, contact := range existing {
+			if contact.Primary {
+				primary = false
+				break
+			}
+			primary = true
+		}
+		if len(existing) == 0 {
+			primary = true
+		}
+	}
+	res, err := s.db.ExecContext(ctx, `
+		INSERT INTO contacts (user_id, name, phone, is_primary, created_at) VALUES (?, ?, ?, ?, ?)`,
+		c.UserID, c.Name, c.Phone, boolToInt(primary), time.Now().Unix())
+	if err != nil {
+		return models.Contact{}, err
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		return models.Contact{}, err
+	}
+	c.ID = id
+	c.Primary = primary
+	c.CreatedAt = time.Now()
+	return c, nil
+}
+
+// UpdateContact changes the name and phone of an existing contact.
+func (s *Store) UpdateContact(ctx context.Context, userID, id int64, name, phone string) (models.Contact, error) {
+	res, err := s.db.ExecContext(ctx,
+		`UPDATE contacts SET name = ?, phone = ? WHERE id = ? AND user_id = ?`, name, phone, id, userID)
+	if err != nil {
+		return models.Contact{}, err
+	}
+	if affected, _ := res.RowsAffected(); affected == 0 {
+		return models.Contact{}, ErrNotFound
+	}
+	return s.ContactByID(ctx, userID, id)
+}
+
+// ContactByID loads one contact of a user.
+func (s *Store) ContactByID(ctx context.Context, userID, id int64) (models.Contact, error) {
+	var c models.Contact
+	var primary int
+	var created int64
+	err := s.db.QueryRowContext(ctx,
+		`SELECT id, user_id, name, phone, is_primary, created_at FROM contacts WHERE id = ? AND user_id = ?`,
+		id, userID).Scan(&c.ID, &c.UserID, &c.Name, &c.Phone, &primary, &created)
+	if errors.Is(err, sql.ErrNoRows) {
+		return models.Contact{}, ErrNotFound
+	}
+	if err != nil {
+		return models.Contact{}, err
+	}
+	c.Primary = primary == 1
+	c.CreatedAt = time.Unix(created, 0)
+	return c, nil
+}
+
+// MakePrimaryContact promotes a contact to be the one used for text alerts.
+func (s *Store) MakePrimaryContact(ctx context.Context, userID, id int64) error {
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback() //nolint:errcheck
+
+	if _, err := tx.ExecContext(ctx, `UPDATE contacts SET is_primary = 0 WHERE user_id = ?`, userID); err != nil {
+		return err
+	}
+	if _, err := tx.ExecContext(ctx, `UPDATE contacts SET is_primary = 1 WHERE id = ? AND user_id = ?`, id, userID); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+// DeleteContact removes a contact of a user. When the primary contact is
+// deleted another contact takes over.
+func (s *Store) DeleteContact(ctx context.Context, userID, id int64) error {
+	contact, err := s.ContactByID(ctx, userID, id)
+	if err != nil {
+		return err
+	}
+	res, err := s.db.ExecContext(ctx, `DELETE FROM contacts WHERE id = ? AND user_id = ?`, id, userID)
+	if err != nil {
+		return err
+	}
+	if affected, _ := res.RowsAffected(); affected == 0 {
+		return ErrNotFound
+	}
+	if contact.Primary {
+		remaining, err := s.Contacts(ctx, userID)
+		if err != nil {
+			return err
+		}
+		for _, other := range remaining {
+			if !other.Primary {
+				return s.MakePrimaryContact(ctx, userID, other.ID)
+			}
+		}
+	}
+	return nil
+}
 
 // SetPrimaryContact stores the user's emergency contact (name + phone).
 func (s *Store) SetPrimaryContact(ctx context.Context, c models.Contact) (models.Contact, error) {

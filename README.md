@@ -60,6 +60,7 @@ help_victim/
     ├── internal/
     │   ├── config/           ← environment configuration
     │   ├── models/           ← User, Picture, Contact, Incident
+    │   ├── countries/        ← embedded country + state list
     │   ├── store/            ← SQLite persistence + migrations
     │   ├── auth/             ← bcrypt, sessions, CSRF, cookies
     │   ├── handlers/         ← pages, JSON API, media routes
@@ -67,9 +68,11 @@ help_victim/
     │   └── guides/           ← first-aid content
     ├── templates/index.html  ← server rendered app shell
     └── static/
-        ├── css/app.css       ← design tokens + four themes
+        ├── css/app.css       ← design tokens + five themes
         ├── js/app.js         ← SOS countdown, settings, picture gallery
-        └── img/              ← artwork for the moving picture area
+        ├── manifest.webmanifest ← installable app
+        ├── sw.js             ← offline cache for the static shell
+        └── img/              ← figurative artwork for the moving picture area
 ```
 
 ---
@@ -79,16 +82,33 @@ help_victim/
 | Screen | What it does |
 |---|---|
 | **Welcome** | Hero with the moving picture area, log in and sign up |
-| **Home** | Big SOS button (5 s cancel window), tiles for report, first aid, contacts and settings |
+| **Home** | Big SOS button (5 s cancel window), a **practise the alert** button, tiles for report, first aid, contacts and settings |
 | **Report** | Problem type, description, prepared alerts and the report history |
 | **First aid** | Six expandable guides: bleeding, burns, choking, not breathing, broken bone, shock |
-| **Contacts** | Your emergency contact and a one tap call to the emergency number |
+| **Contacts** | Several emergency contacts, one of them primary, plus a one tap call to the emergency number |
 | **Settings** | Profile, pictures, appearance, alerts, account and about |
+
+### Signing up
+
+The sign up form asks for your **first name**, **second name**, **email
+address**, **country of residence** and **state or region** — both as
+dropdowns with an arrow, with the country first — then your **nation of
+origin**, a **password** and a **confirmation**.
+
+- **The email must be an email address and nothing else.** `amaka`, `amaka@`,
+  `amaka@example`, `amaka example.com` and `amaka@example.123` are all
+  refused.
+- **The password must contain letters and numbers.** At least 8 characters,
+  at least one letter and at least one digit. The three rules are shown as a
+  live checklist with a strength meter, and a wrong password is reported as
+  *"Password is incorrect. It must contain at least one number."*
+- Picking a country fills the state dropdown with the states of that country.
+  Countries without a known list let you type the region instead.
 
 ### Settings in detail
 
-- **Profile** — edit first name, second name, email, state and nation. Changing
-  the email address requires the current password.
+- **Profile** — edit first name, second name, email, country, state and nation.
+  Changing the email address requires the current password.
 - **Your pictures** — upload several pictures (JPG or PNG, up to 5 MB, at least
   128 × 128). Mark any of them as your profile picture, delete any of them, or
   open one in the full screen preview. The header avatar follows the profile
@@ -103,16 +123,25 @@ help_victim/
 - **Account** — change your password, clear your past reports, log out, or
   delete your account.
 - **About** — what the app does, what it does not do, the safety notice, how
-  your data is used, credits and the legal links.
+  your data is used, credits, the legal links and an **install** button that
+  adds the app to your home screen.
 
 ### The moving picture area
 
-The welcome hero holds a gallery whose pictures **move**: each slide drifts and
-zooms slowly (a Ken Burns effect), slides cross-fade into each other, the
-gallery advances every six seconds and the dots below it let you jump to a
-picture. The motion pauses while your pointer or keyboard focus is on the
-gallery, and it is switched off completely by `prefers-reduced-motion` or by
-the motion switch in Settings.
+The welcome hero holds a gallery of five **figurative** drawings — a paramedic
+attending to someone, an open first aid kit, two people supporting each other,
+an ambulance at night and a person standing safe at sunrise. The pictures
+**move**: each slide drifts and zooms slowly (a Ken Burns effect), slides
+cross-fade into each other, the gallery advances every six seconds and the dots
+below it let you jump to a picture. The motion pauses while your pointer or
+keyboard focus is on the gallery, and it is switched off completely by
+`prefers-reduced-motion` or by the motion switch in Settings.
+
+### Install it on a phone
+
+Open the app in a browser and use **Settings → About → Install Victim Care**
+(or the browser menu, "Add to home screen"). The app then runs standalone with
+its own icon, and the static shell keeps working when the network is weak.
 
 ---
 
@@ -134,7 +163,10 @@ and in the `victimcare_csrf` cookie).
 | GET/PUT | `/api/v1/users/me/settings` | Theme and alert preferences |
 | POST | `/api/v1/users/me/password` | Change the password |
 | DELETE | `/api/v1/users/me` | Delete the account |
-| GET/POST | `/api/v1/contacts` | Emergency contact |
+| GET/POST | `/api/v1/contacts` | Emergency contacts (add or update) |
+| DELETE | `/api/v1/contacts/{id}` | Remove a contact |
+| POST | `/api/v1/contacts/{id}/primary` | Choose the contact for text alerts |
+| GET | `/api/v1/countries` | Country and state list |
 | GET/POST/DELETE | `/api/v1/incidents` | Prepared alerts and history |
 | GET | `/api/v1/guides` | First-aid content |
 
@@ -149,7 +181,8 @@ go test ./...
 
 The suite covers the sign up → log in → profile → settings → contact → report →
 picture upload → log out journey, CSRF enforcement, upload validation
-(non-images, tiny images, oversized files), and the helper validators.
+(non-images, tiny images, oversized files), the email rules, the password
+rules, the country/state pairing and the multiple contact flow.
 
 ---
 
