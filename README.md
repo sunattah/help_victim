@@ -88,6 +88,19 @@ help_victim/
 | **Contacts** | Several emergency contacts, one of them primary, plus a one tap call to the emergency number |
 | **Settings** | Profile, pictures, appearance, alerts, account and about |
 
+### Getting around
+
+- The header carries a **＋ Create issue** button that opens the report screen,
+  plus **Sign out** and your avatar.
+- The navigation bar uses an emoji on every tab: 🏠 Home, 📝 Report,
+  🩹 First aid, 📞 Contacts, ⚙️ Settings.
+- Every screen except Home starts with a **🏠 Back to home** button that takes
+  you straight back to the SOS button.
+- A large medical **+** sits behind the whole app in the brand colour of the
+  current theme, and the alert overlay carries the same cross, larger and
+  brighter. It is the mark of the app and it is visible on every screen
+  without ever sitting on top of the text.
+
 ### Signing up
 
 The sign up form asks for your **first name**, **second name**, **email

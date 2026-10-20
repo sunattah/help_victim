@@ -146,9 +146,18 @@ App shell  [header: brand · + Create · Sign out]  [nav: Home · Report · Firs
 ### 6.0 App shell
 
 - **Header** (red, sticky): brand mark + "Victim Care" wordmark; right side holds
-  **＋ Create** and **Sign out** (visible only when signed in).
-- **Nav bar**: five equal tabs, active tab marked with `aria-current="page"` and a
-  3 px red underline. Collapses to smaller type below 650 px.
+  **＋ Create issue**, **Sign out** and the avatar button.
+- **Nav bar**: five equal tabs with an emoji each — 🏠 Home, 📝 Report,
+  🩹 First aid, 📞 Contacts, ⚙️ Settings. The active tab is marked with
+  `aria-current="page"` and a 3 px red underline. Collapses to smaller type
+  below 650 px.
+- **Back to home**: every screen other than Home opens with a 🏠 **Back to home**
+  pill button that returns to the Home view and puts the focus back on the SOS
+  button.
+- **The background cross**: a large medical **+** sits behind the whole app, in
+  the brand colour of the current theme. It is the product mark, it stays
+  visible on every screen, and it never sits on top of the text. The alert
+  overlay carries the same cross, larger and brighter.
 - **Content width**: max 1100 px, 22 px side gutters (15 px on mobile).
 - **Panel resize control**: header slider (85 %–120 %) that scales the app shell
   for demoing on desktop; **Reset size** restores 100 %. Purely cosmetic.

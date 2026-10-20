@@ -970,6 +970,14 @@
       if (tile) switchTab(tile.dataset.go);
     });
 
+    // The "back to home" button on every secondary screen.
+    $('signed-in-view').addEventListener('click', (event) => {
+      const button = event.target.closest('[data-go-home]');
+      if (!button) return;
+      switchTab('home');
+      $('sos').focus();
+    });
+
     document.querySelectorAll('[data-type]').forEach((button) => {
       button.addEventListener('click', () => {
         state.reportType = button.dataset.type;
@@ -1182,6 +1190,11 @@
 
       // Deep link: /#settings opens the settings tab straight away.
       if (views.indexOf(wanted) !== -1) switchTab(wanted);
+
+      // Home screen shortcut: /?practice=1 runs a practice alert straight away.
+      if (/[?&]practice=1/.test(window.location.search)) {
+        window.setTimeout(function () { startCountdown(true); }, 600);
+      }
     } else {
       showScreen('welcome');
       switchTab('home');

@@ -32,6 +32,9 @@
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
 
+  <!-- The medical cross that sits behind the whole app. -->
+  <div class="background-plus" aria-hidden="true"></div>
+
   <div id="app-shell" class="app-shell">
     <header class="brand-header">
       <div class="header-inner">
@@ -39,7 +42,7 @@
         <h1 class="brand-title">Victim Care</h1>
 
         <div class="header-actions" id="signed-in-actions" {{if not .SignedIn}}hidden{{end}}>
-          <button type="button" id="create" class="create-button">+ Create</button>
+          <button type="button" id="create" class="create-button"><span class="plus-mark" aria-hidden="true">+</span> Create issue</button>
           <button type="button" id="signout" class="signout-button">Sign out</button>
           <button type="button" id="avatar-button" class="avatar-button" title="Your profile" aria-label="Open your profile and settings">
             {{if .User.AvatarURL}}
@@ -60,11 +63,11 @@
 
     <nav id="top-nav" class="top-nav" aria-label="Main navigation" {{if not .SignedIn}}hidden{{end}}>
       <div class="nav-inner" id="tabs">
-        <button type="button" data-tab="home" aria-current="page">Home</button>
-        <button type="button" data-tab="report">Report</button>
-        <button type="button" data-tab="aid">First aid</button>
-        <button type="button" data-tab="contacts">Contacts</button>
-        <button type="button" data-tab="settings">Settings</button>
+        <button type="button" data-tab="home" aria-current="page"><span class="nav-emoji" aria-hidden="true">🏠</span> Home</button>
+        <button type="button" data-tab="report"><span class="nav-emoji" aria-hidden="true">📝</span> Report</button>
+        <button type="button" data-tab="aid"><span class="nav-emoji" aria-hidden="true">🩹</span> First aid</button>
+        <button type="button" data-tab="contacts"><span class="nav-emoji" aria-hidden="true">📞</span> Contacts</button>
+        <button type="button" data-tab="settings"><span class="nav-emoji" aria-hidden="true">⚙️</span> Settings</button>
       </div>
     </nav>
 
@@ -215,6 +218,7 @@
 
         <!-- report -->
         <section id="report-view" class="view" hidden>
+          <button type="button" class="back-home" data-go-home><span class="nav-emoji" aria-hidden="true">🏠</span> Back to home</button>
           <h2>Report a problem</h2>
           <p class="muted">Describe the situation, then choose how to contact help from your device.</p>
           <p class="field-label">What kind of problem?</p>
@@ -244,6 +248,7 @@
 
         <!-- first aid -->
         <section id="aid-view" class="view" hidden>
+          <button type="button" class="back-home" data-go-home><span class="nav-emoji" aria-hidden="true">🏠</span> Back to home</button>
           <h2>First aid</h2>
           <p class="muted">Simple steps while you wait for help.</p>
           {{range .Guides}}
@@ -260,6 +265,7 @@
 
         <!-- contacts -->
         <section id="contacts-view" class="view" hidden>
+          <button type="button" class="back-home" data-go-home><span class="nav-emoji" aria-hidden="true">🏠</span> Back to home</button>
           <h2>Emergency contacts</h2>
           <p class="muted">Add the people you can alert when preparing an alert. Nothing is sent automatically. The contact marked <strong>primary</strong> is the one the text alert goes to.</p>
 
@@ -302,6 +308,7 @@
 
         <!-- settings -->
         <section id="settings-view" class="view" hidden>
+          <button type="button" class="back-home" data-go-home><span class="nav-emoji" aria-hidden="true">🏠</span> Back to home</button>
           <h2>Settings</h2>
           <p class="muted">Everything about your profile, pictures, themes and alerts lives here.</p>
 
