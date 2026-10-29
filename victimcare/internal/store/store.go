@@ -73,6 +73,11 @@ CREATE TABLE IF NOT EXISTS users (
     share_location  INTEGER NOT NULL DEFAULT 1,
     vibrate         INTEGER NOT NULL DEFAULT 1,
     countdown_secs  INTEGER NOT NULL DEFAULT 5,
+    blood_type      TEXT    NOT NULL DEFAULT '',
+    allergies       TEXT    NOT NULL DEFAULT '',
+    medications     TEXT    NOT NULL DEFAULT '',
+    medical_notes   TEXT    NOT NULL DEFAULT '',
+    share_medical   INTEGER NOT NULL DEFAULT 0,
     created_at      INTEGER NOT NULL,
     updated_at      INTEGER NOT NULL
 );
@@ -123,9 +128,16 @@ func migrate(db *sql.DB) error {
 	if _, err := db.Exec(schema); err != nil {
 		return err
 	}
-	// Older databases get the country column added on start up.
-	if !hasColumn(db, "users", "country") {
-		if _, err := db.Exec(`ALTER TABLE users ADD COLUMN country TEXT NOT NULL DEFAULT ''`); err != nil {
+	// Older databases get new columns added on start up.
+	for _, col := range []string{"country", "blood_type", "allergies", "medications", "medical_notes"} {
+		if !hasColumn(db, "users", col) {
+			if _, err := db.Exec(fmt.Sprintf("ALTER TABLE users ADD COLUMN %s TEXT NOT NULL DEFAULT ''", col)); err != nil {
+				return err
+			}
+		}
+	}
+	if !hasColumn(db, "users", "share_medical") {
+		if _, err := db.Exec(`ALTER TABLE users ADD COLUMN share_medical INTEGER NOT NULL DEFAULT 0`); err != nil {
 			return err
 		}
 	}
@@ -163,11 +175,14 @@ func (s *Store) CreateUser(ctx context.Context, u models.User) (models.User, err
 	res, err := s.db.ExecContext(ctx, `
 		INSERT INTO users (first_name, second_name, email, password_hash, state, nation, country,
 		                   theme, motion, emergency_no, share_location, vibrate, countdown_secs,
+		                   blood_type, allergies, medications, medical_notes, share_medical,
 		                   created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		u.FirstName, u.SecondName, strings.ToLower(u.Email), u.PasswordHash, u.State, u.Nation, u.Country,
 		u.Theme, boolToInt(u.Motion), u.EmergencyNo, boolToInt(u.ShareLocation),
-		boolToInt(u.Vibrate), u.CountdownSecs, now, now)
+		boolToInt(u.Vibrate), u.CountdownSecs,
+		u.BloodType, u.Allergies, u.Medications, u.MedicalNotes, boolToInt(u.ShareMedical),
+		now, now)
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			return models.User{}, ErrEmailTaken
@@ -232,6 +247,19 @@ func (s *Store) UpdatePassword(ctx context.Context, id int64, hash string) error
 	return err
 }
 
+// UpdateMedicalProfile updates the emergency medical details of a user.
+func (s *Store) UpdateMedicalProfile(ctx context.Context, id int64, bloodType, allergies, medications, notes string, share bool) (models.User, error) {
+	_, err := s.db.ExecContext(ctx, `
+		UPDATE users
+		   SET blood_type = ?, allergies = ?, medications = ?, medical_notes = ?, share_medical = ?, updated_at = ?
+		 WHERE id = ?`,
+		bloodType, allergies, medications, notes, boolToInt(share), time.Now().Unix(), id)
+	if err != nil {
+		return models.User{}, err
+	}
+	return s.UserByID(ctx, id)
+}
+
 // DeleteUser removes the account and every row that belongs to it.
 func (s *Store) DeleteUser(ctx context.Context, id int64) error {
 	_, err := s.db.ExecContext(ctx, `DELETE FROM users WHERE id = ?`, id)
@@ -239,7 +267,9 @@ func (s *Store) DeleteUser(ctx context.Context, id int64) error {
 }
 
 const userSelect = `SELECT id, first_name, second_name, email, password_hash, state, nation, country,
-	theme, motion, emergency_no, share_location, vibrate, countdown_secs, created_at, updated_at FROM users`
+	theme, motion, emergency_no, share_location, vibrate, countdown_secs,
+	blood_type, allergies, medications, medical_notes, share_medical,
+	created_at, updated_at FROM users`
 
 type rowScanner interface {
 	Scan(dest ...any) error
@@ -247,10 +277,12 @@ type rowScanner interface {
 
 func scanUser(row rowScanner) (models.User, error) {
 	var u models.User
-	var motion, share, vibrate int
+	var motion, share, vibrate, shareMedical int
 	var created, updated int64
 	err := row.Scan(&u.ID, &u.FirstName, &u.SecondName, &u.Email, &u.PasswordHash, &u.State, &u.Nation, &u.Country,
-		&u.Theme, &motion, &u.EmergencyNo, &share, &vibrate, &u.CountdownSecs, &created, &updated)
+		&u.Theme, &motion, &u.EmergencyNo, &share, &vibrate, &u.CountdownSecs,
+		&u.BloodType, &u.Allergies, &u.Medications, &u.MedicalNotes, &shareMedical,
+		&created, &updated)
 	if errors.Is(err, sql.ErrNoRows) {
 		return models.User{}, ErrNotFound
 	}
@@ -260,6 +292,7 @@ func scanUser(row rowScanner) (models.User, error) {
 	u.Motion = motion == 1
 	u.ShareLocation = share == 1
 	u.Vibrate = vibrate == 1
+	u.ShareMedical = shareMedical == 1
 	u.CreatedAt = time.Unix(created, 0)
 	u.UpdatedAt = time.Unix(updated, 0)
 	return u, nil
@@ -620,6 +653,22 @@ func (s *Store) Incidents(ctx context.Context, userID int64, limit int) ([]model
 func (s *Store) ClearIncidents(ctx context.Context, userID int64) error {
 	_, err := s.db.ExecContext(ctx, `DELETE FROM incidents WHERE user_id = ?`, userID)
 	return err
+}
+
+// DeleteIncident removes a single incident by ID belonging to the user.
+func (s *Store) DeleteIncident(ctx context.Context, userID, incidentID int64) error {
+	res, err := s.db.ExecContext(ctx, `DELETE FROM incidents WHERE id = ? AND user_id = ?`, incidentID, userID)
+	if err != nil {
+		return err
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return ErrNotFound
+	}
+	return nil
 }
 
 // ---------------------------------------------------------------- stats ----

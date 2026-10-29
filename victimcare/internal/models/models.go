@@ -23,6 +23,11 @@ type User struct {
 	ShareLocation bool
 	Vibrate       bool
 	CountdownSecs int
+	BloodType     string
+	Allergies     string
+	Medications   string
+	MedicalNotes  string
+	ShareMedical  bool
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 }
@@ -72,9 +77,23 @@ type PublicUser struct {
 	ShareLocation bool   `json:"shareLocation"`
 	Vibrate       bool   `json:"vibrate"`
 	CountdownSecs int    `json:"countdownSeconds"`
+	BloodType     string `json:"bloodType"`
+	Allergies     string `json:"allergies"`
+	Medications   string `json:"medications"`
+	MedicalNotes  string `json:"medicalNotes"`
+	ShareMedical  bool   `json:"shareMedical"`
 	AvatarURL     string `json:"avatarUrl"`
 	Initials      string `json:"initials"`
 	CreatedAt     string `json:"createdAt"`
+}
+
+// MedicalProfile holds emergency medical information.
+type MedicalProfile struct {
+	BloodType    string `json:"bloodType"`
+	Allergies    string `json:"allergies"`
+	Medications  string `json:"medications"`
+	MedicalNotes string `json:"medicalNotes"`
+	ShareMedical bool   `json:"shareMedical"`
 }
 
 // Picture is an image the user uploaded to their profile.

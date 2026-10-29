@@ -94,6 +94,58 @@ func All() []Guide {
 			},
 			CallHelp: "Call the emergency number if the person is pale, cold or confused.",
 		},
+		{
+			ID:      "anaphylaxis",
+			Title:   "Severe allergic reaction (Anaphylaxis)",
+			Summary: "Use an adrenaline auto-injector (EpiPen) immediately.",
+			Steps: []string{
+				"Check for difficulty breathing, swelling of throat or tongue, or dizziness.",
+				"Call the emergency number immediately and state 'anaphylaxis'.",
+				"Help them use an adrenaline auto-injector (EpiPen) against outer mid-thigh.",
+				"Hold firmly for 3 seconds, then massage the area for 10 seconds.",
+				"Keep the person lying down with legs raised. Do not allow them to stand.",
+				"If no improvement after 5 minutes, use a second injector if available.",
+			},
+			CallHelp: "Always call emergency services immediately after using an adrenaline injector.",
+		},
+		{
+			ID:      "poisoning",
+			Title:   "Poisoning and chemical ingestion",
+			Summary: "Do not induce vomiting. Identify the substance.",
+			Steps: []string{
+				"Do NOT induce vomiting or give liquids unless directed by emergency services.",
+				"Keep the container, packaging or plant material ready for medical personnel.",
+				"If chemical is on skin or in eyes, rinse with running tap water for 15 minutes.",
+				"If unconscious, place them in the recovery position on their side.",
+				"Call emergency services or poison control immediately.",
+			},
+			CallHelp: "Call the emergency number immediately for poisoning or chemical contact.",
+		},
+		{
+			ID:      "seizure",
+			Title:   "Seizure or convulsion",
+			Summary: "Protect the person's head from injury.",
+			Steps: []string{
+				"Clear dangerous, hard or sharp objects away from the person.",
+				"Cushion their head with a folded jacket or soft item.",
+				"Do NOT restrain them or place anything inside their mouth.",
+				"Time the seizure. If it lasts longer than 5 minutes, call an ambulance immediately.",
+				"When jerking stops, gently turn them onto their side into the recovery position.",
+			},
+			CallHelp: "Call emergency services if the seizure lasts > 5 minutes or they are injured.",
+		},
+		{
+			ID:      "heatstroke",
+			Title:   "Heatstroke & Hypothermia",
+			Summary: "Rapidly cool or gently warm the person.",
+			Steps: []string{
+				"Heatstroke: Move to shade or cool room. Strip outer clothes, sponge with cold water, fan.",
+				"Hypothermia: Move out of cold/wind. Replace wet clothing with warm dry blankets.",
+				"Do not give alcohol or hot drinks to an exhausted person.",
+				"If they become confused, vomit or lose consciousness, call an ambulance immediately.",
+			},
+			CallHelp: "Call emergency services if body temperature is extreme or person is unresponsive.",
+		},
 	}
 }
 

@@ -800,6 +800,319 @@ select {
   transform: translateY(-1px);
 }
 
+/* --------------------------------------------------------- quick exit */
+.quick-exit-button {
+  background: #111111;
+  color: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 10px;
+  padding: 7px 12px;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.15s ease;
+}
+.quick-exit-button:hover {
+  background: #000000;
+  border-color: #ffffff;
+  transform: translateY(-1px);
+}
+.quick-exit-button:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------ emergency toolkit */
+.emergency-toolkit {
+  margin-top: 36px;
+  border-top: 2px solid var(--line);
+  padding-top: 24px;
+}
+.emergency-toolkit h3 {
+  margin: 0 0 16px;
+  font-size: 19px;
+  color: var(--deep);
+}
+.toolkit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.toolkit-card {
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  box-shadow: var(--shadow);
+}
+.toolkit-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.toolkit-emoji {
+  font-size: 26px;
+  line-height: 1;
+  flex: none;
+}
+.toolkit-card-head strong {
+  display: block;
+  font-size: 16px;
+  color: var(--deep);
+  margin-bottom: 4px;
+}
+.toolkit-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.toolkit-actions .action {
+  flex: 1 1 120px;
+  padding: 9px 12px;
+  font-size: 14px;
+}
+
+/* Safety timer */
+.timer-setup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.timer-presets {
+  display: flex;
+  gap: 8px;
+}
+.timer-presets .chip {
+  flex: 1;
+  text-align: center;
+  padding: 7px 10px;
+  font-size: 13px;
+}
+.timer-presets .chip.is-selected {
+  background: var(--red);
+  color: var(--on-red);
+  border-color: var(--red);
+}
+.timer-active {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+.timer-countdown-display {
+  font-size: 38px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--red);
+  letter-spacing: 0.05em;
+}
+.timer-running-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+.timer-running-actions .action {
+  flex: 1;
+  padding: 9px 14px;
+}
+
+/* CPR Metronome */
+.cpr-metronome-card {
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  box-shadow: var(--shadow);
+}
+.cpr-metronome-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.metronome-heart {
+  font-size: 32px;
+  line-height: 1;
+  display: inline-block;
+  transform-origin: center;
+}
+.metronome-heart.pulse {
+  animation: cprHeartbeat 0.545s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+@keyframes cprHeartbeat {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.35); }
+  45% { transform: scale(1.05); }
+  65% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+.metronome-actions .action {
+  padding: 9px 16px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* Guide search */
+.search-wrap {
+  margin: 16px 0 20px;
+}
+.search-wrap input[type="search"] {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 15px;
+}
+
+/* Reports enhancements */
+.reports-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 26px;
+  margin-bottom: 12px;
+}
+.reports-header-row h3 { margin: 0; }
+.report-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.report-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+.map-link {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--deep);
+  text-decoration: underline;
+}
+
+/* Strobe screen overlay */
+.strobe-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: auto;
+  cursor: pointer;
+  animation: screenStrobe 0.2s steps(2, start) infinite;
+}
+@keyframes screenStrobe {
+  0% { background: #ffffff; }
+  50% { background: #000000; }
+  100% { background: #ffffff; }
+}
+.strobe-exit-hint {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 800;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+/* Modal dialogs */
+.modal-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+.modal-dialog-backdrop[hidden] { display: none; }
+.modal-dialog-panel {
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 640px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.4);
+}
+.modal-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px;
+  border-bottom: 2px solid var(--line);
+  background: var(--surface-2);
+}
+.modal-dialog-header h3 {
+  margin: 0;
+  font-size: 20px;
+  color: var(--deep);
+}
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--ink);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.modal-close-btn:hover { background: var(--line); }
+.modal-dialog-body {
+  padding: 20px 22px;
+  overflow-y: auto;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.modal-dialog-body h4 {
+  margin: 16px 0 6px;
+  color: var(--deep);
+}
+.modal-dialog-body p { margin: 0 0 12px; }
+.modal-dialog-body ul { margin: 0 0 16px; padding-left: 20px; }
+
+/* Overlay emergency tools */
+.overlay-emergency-tools {
+  display: flex;
+  gap: 10px;
+  margin: 14px 0;
+  width: 100%;
+}
+.overlay-emergency-tools .action {
+  flex: 1;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
 /* ---------------------------------------------------------- responsive */
 
 @media (max-width: 650px) {

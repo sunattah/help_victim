@@ -8,11 +8,13 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"victimcare/internal/auth"
@@ -37,6 +39,7 @@ type Server struct {
 	sessions *auth.Manager
 	tmpl     *template.Template
 	mux      *http.ServeMux
+	limiter  *RateLimiter
 }
 
 // New creates a Server and registers every route.
@@ -52,6 +55,7 @@ func New(cfg config.Config, st *store.Store) (*Server, error) {
 		sessions: auth.NewManager(st, cfg.Secret, cfg.SecureCookies),
 		tmpl:     tmpl,
 		mux:      http.NewServeMux(),
+		limiter:  NewRateLimiter(60, time.Minute),
 	}
 	s.routes()
 	return s, nil
@@ -72,11 +76,13 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) routes() {
 	s.mux.HandleFunc("GET /api/v1/health", s.handleHealth)
-	s.mux.HandleFunc("POST /api/v1/auth/signup", s.handleSignup)
-	s.mux.HandleFunc("POST /api/v1/auth/login", s.handleLogin)
+	s.mux.HandleFunc("POST /api/v1/auth/signup", s.limitAuth(s.handleSignup))
+	s.mux.HandleFunc("POST /api/v1/auth/login", s.limitAuth(s.handleLogin))
 	s.mux.HandleFunc("POST /api/v1/auth/logout", s.handleLogout)
 	s.mux.HandleFunc("GET /api/v1/auth/me", s.handleMe)
 	s.mux.HandleFunc("PATCH /api/v1/users/me", s.handleUpdateProfile)
+	s.mux.HandleFunc("GET /api/v1/users/me/medical", s.handleGetMedical)
+	s.mux.HandleFunc("PUT /api/v1/users/me/medical", s.handleUpdateMedical)
 	s.mux.HandleFunc("GET /api/v1/users/me/pictures", s.handleListPictures)
 	s.mux.HandleFunc("POST /api/v1/users/me/pictures", s.handleUploadPicture)
 	s.mux.HandleFunc("DELETE /api/v1/users/me/pictures/{id}", s.handleDeletePicture)
@@ -93,6 +99,7 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("GET /api/v1/incidents", s.handleListIncidents)
 	s.mux.HandleFunc("POST /api/v1/incidents", s.handleCreateIncident)
 	s.mux.HandleFunc("DELETE /api/v1/incidents", s.handleClearIncidents)
+	s.mux.HandleFunc("DELETE /api/v1/incidents/{id}", s.handleDeleteSingleIncident)
 	s.mux.HandleFunc("GET /api/v1/guides", s.handleGuides)
 
 	s.mux.HandleFunc("GET /media/picture/{id}", s.handlePictureFile)
@@ -103,6 +110,72 @@ func (s *Server) routes() {
 }
 
 // ---------------------------------------------------------------- helpers --
+
+// RateLimiter tracks recent attempts by client IP using a sliding window.
+type RateLimiter struct {
+	mu       sync.Mutex
+	attempts map[string][]time.Time
+	limit    int
+	window   time.Duration
+}
+
+// NewRateLimiter creates an in-memory rate limiter.
+func NewRateLimiter(limit int, window time.Duration) *RateLimiter {
+	return &RateLimiter{
+		attempts: make(map[string][]time.Time),
+		limit:    limit,
+		window:   window,
+	}
+}
+
+// Allow reports whether a request from the given IP is within rate limits.
+func (rl *RateLimiter) Allow(ip string) bool {
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+
+	now := time.Now()
+	cutoff := now.Add(-rl.window)
+
+	valid := make([]time.Time, 0, len(rl.attempts[ip]))
+	for _, t := range rl.attempts[ip] {
+		if t.After(cutoff) {
+			valid = append(valid, t)
+		}
+	}
+
+	if len(valid) >= rl.limit {
+		rl.attempts[ip] = valid
+		return false
+	}
+
+	valid = append(valid, now)
+	rl.attempts[ip] = valid
+	return true
+}
+
+func clientIP(r *http.Request) string {
+	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+		parts := strings.Split(xff, ",")
+		return strings.TrimSpace(parts[0])
+	}
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return r.RemoteAddr
+	}
+	return host
+}
+
+// limitAuth limits attempts on sensitive authentication endpoints.
+func (s *Server) limitAuth(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ip := clientIP(r)
+		if !s.limiter.Allow(ip) {
+			writeError(w, http.StatusTooManyRequests, "Too many attempts. Please wait a minute before trying again.", "")
+			return
+		}
+		next(w, r)
+	}
+}
 
 // sessionFrom returns the session attached to the request, if any.
 func sessionFrom(r *http.Request) *auth.Session {
@@ -195,6 +268,11 @@ func (s *Server) publicUser(ctx context.Context, u models.User) models.PublicUse
 		ShareLocation: u.ShareLocation,
 		Vibrate:       u.Vibrate,
 		CountdownSecs: u.CountdownSecs,
+		BloodType:     u.BloodType,
+		Allergies:     u.Allergies,
+		Medications:   u.Medications,
+		MedicalNotes:  u.MedicalNotes,
+		ShareMedical:  u.ShareMedical,
 		Initials:      u.Initials(),
 		CreatedAt:     u.CreatedAt.Format(time.RFC3339),
 	}

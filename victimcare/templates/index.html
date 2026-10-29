@@ -41,6 +41,8 @@
         <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2h4v8h8v4h-8v8h-4v-8H2v-4h8z"></path></svg>
         <h1 class="brand-title">Victim Care</h1>
 
+        <button type="button" id="quick-exit" class="quick-exit-button" title="Instantly hide this page and open a safe site" aria-label="Quick exit to safe site">⚡ Quick Exit</button>
+
         <div class="header-actions" id="signed-in-actions" {{if not .SignedIn}}hidden{{end}}>
           <button type="button" id="create" class="create-button"><span class="plus-mark" aria-hidden="true">+</span> Create issue</button>
           <button type="button" id="signout" class="signout-button">Sign out</button>
@@ -214,6 +216,68 @@
             <button type="button" data-go="contacts" class="tile"><strong>Contacts</strong><span>Who you can alert</span></button>
             <button type="button" data-go="settings" class="tile"><strong>Settings</strong><span>Profile, pictures and themes</span></button>
           </div>
+
+          <!-- Emergency Toolkit -->
+          <div class="emergency-toolkit">
+            <h3>Emergency toolkit</h3>
+            <div class="toolkit-grid">
+              <!-- Siren & Strobe Alarm -->
+              <div class="toolkit-card">
+                <div class="toolkit-card-head">
+                  <span class="toolkit-emoji" aria-hidden="true">🚨</span>
+                  <div>
+                    <strong>Deterrent alarm & strobe</strong>
+                    <p class="muted small-note">Attract attention or deter danger with a loud siren and flashing screen.</p>
+                  </div>
+                </div>
+                <div class="toolkit-actions">
+                  <button type="button" id="toggle-siren" class="action outline"><span id="siren-icon">🔊</span> <span id="siren-label">Sound siren</span></button>
+                  <button type="button" id="toggle-strobe" class="action outline"><span id="strobe-icon">⚡</span> <span id="strobe-label">Flash strobe</span></button>
+                </div>
+              </div>
+
+              <!-- Safety Check-in Timer -->
+              <div class="toolkit-card" id="safety-timer-card">
+                <div class="toolkit-card-head">
+                  <span class="toolkit-emoji" aria-hidden="true">⏱️</span>
+                  <div>
+                    <strong>Safety check-in timer</strong>
+                    <p class="muted small-note">Walking alone? Set a timer. If you don't check in, an alert is prepared automatically.</p>
+                  </div>
+                </div>
+                <div id="safety-timer-setup" class="timer-setup">
+                  <div class="timer-presets" role="group" aria-label="Timer duration">
+                    <button type="button" class="chip timer-preset" data-minutes="5">5 min</button>
+                    <button type="button" class="chip timer-preset is-selected" data-minutes="15">15 min</button>
+                    <button type="button" class="chip timer-preset" data-minutes="30">30 min</button>
+                  </div>
+                  <button type="button" id="start-safety-timer" class="action">Start safety timer</button>
+                </div>
+                <div id="safety-timer-active" class="timer-active" hidden>
+                  <div class="timer-countdown-display" id="safety-timer-display" aria-live="assertive">15:00</div>
+                  <p class="small-note muted">If time expires without check-in, the emergency alert will trigger.</p>
+                  <div class="timer-running-actions">
+                    <button type="button" id="safety-timer-safe" class="action">I'm Safe (Stop)</button>
+                    <button type="button" id="safety-timer-extend" class="action outline">+5 mins</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Medical ID Quick Access -->
+              <div class="toolkit-card">
+                <div class="toolkit-card-head">
+                  <span class="toolkit-emoji" aria-hidden="true">📋</span>
+                  <div>
+                    <strong>Emergency Medical ID</strong>
+                    <p class="muted small-note">Quick access to vital health info, allergies, and emergency notes.</p>
+                  </div>
+                </div>
+                <div class="toolkit-actions">
+                  <button type="button" id="view-medical-btn" class="action outline">View Medical ID</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
         <!-- report -->
@@ -233,13 +297,24 @@
           <textarea id="note" rows="4" maxlength="1000" placeholder="Where you are, who is hurt, and anything dangerous nearby"></textarea>
           <button type="button" id="send-report" class="action wide">Prepare alert</button>
 
-          <h3>Past reports</h3>
+          <div class="reports-header-row">
+            <h3>Past reports</h3>
+            <button type="button" id="export-reports-btn" class="link-button" {{if not .Reports}}hidden{{end}}>📥 Export log (CSV)</button>
+          </div>
           <div id="reports-list">
             {{range .Reports}}
-              <article class="report-card">
-                <strong>{{.Kind}}</strong><br>
+              <article class="report-card" data-id="{{.ID}}">
+                <div class="report-card-top">
+                  <strong>{{.Kind}}</strong>
+                  <button type="button" class="link-button danger delete-single-report" data-id="{{.ID}}" aria-label="Delete this report">Delete</button>
+                </div>
                 <span>{{if .Note}}{{.Note}}{{else}}No details{{end}}</span><br>
-                <small>{{.CreatedAt.Format "2 Jan 2006 15:04"}}</small>
+                <div class="report-meta">
+                  <small>{{.CreatedAt.Format "2 Jan 2006 15:04"}}</small>
+                  {{if and .Latitude .Longitude}}
+                    <a href="https://www.google.com/maps?q={{.Latitude}},{{.Longitude}}" target="_blank" rel="noopener noreferrer" class="link-button map-link">📍 View on map</a>
+                  {{end}}
+                </div>
               </article>
             {{end}}
           </div>
@@ -251,16 +326,38 @@
           <button type="button" class="back-home" data-go-home><span class="nav-emoji" aria-hidden="true">🏠</span> Back to home</button>
           <h2>First aid</h2>
           <p class="muted">Simple steps while you wait for help.</p>
-          {{range .Guides}}
-            <details>
-              <summary>{{.Title}}</summary>
-              <p class="muted small-note">{{.Summary}}</p>
-              <ol>
-                {{range .Steps}}<li>{{.}}</li>{{end}}
-              </ol>
-              <p class="call-help">{{.CallHelp}}</p>
-            </details>
-          {{end}}
+
+          <div class="search-wrap">
+            <input id="aid-search" type="search" placeholder="🔍 Search guides (e.g. bleeding, burns, cpr, choking, seizure, shock)..." aria-label="Search first aid guides">
+          </div>
+
+          <!-- CPR Metronome Tool -->
+          <div class="cpr-metronome-card" id="cpr-metronome-tool">
+            <div class="cpr-metronome-header">
+              <span class="metronome-heart" id="metronome-heart" aria-hidden="true">❤️</span>
+              <div>
+                <strong>CPR Compression Metronome</strong>
+                <p class="muted small-note">Push hard and fast to the beat (110 beats per minute &mdash; Stayin' Alive tempo).</p>
+              </div>
+            </div>
+            <div class="metronome-actions">
+              <button type="button" id="toggle-cpr-metronome" class="action outline"><span id="cpr-metronome-label">Start Metronome (110 BPM)</span></button>
+            </div>
+          </div>
+
+          <div id="guides-container">
+            {{range .Guides}}
+              <details class="guide-item" data-title="{{.Title}}" data-summary="{{.Summary}}" data-id="{{.ID}}">
+                <summary>{{.Title}}</summary>
+                <p class="muted small-note">{{.Summary}}</p>
+                <ol>
+                  {{range .Steps}}<li>{{.}}</li>{{end}}
+                </ol>
+                <p class="call-help">{{.CallHelp}}</p>
+              </details>
+            {{end}}
+          </div>
+          <p id="guides-empty" class="muted" hidden>No first-aid guides match your search.</p>
         </section>
 
         <!-- contacts -->
@@ -363,6 +460,48 @@
                 <button type="submit" class="action">Save profile</button>
               </div>
               <p id="profile-status" class="status" role="status"></p>
+            </form>
+          </section>
+
+          <!-- medical id -->
+          <section class="settings-card" aria-labelledby="settings-medical-title">
+            <h3 id="settings-medical-title">Medical ID (Emergency Info)</h3>
+            <p class="muted small-note">Vital health information to guide first responders and contacts during an emergency.</p>
+
+            <form id="medical-form" novalidate>
+              <label for="medical-blood">Blood type</label>
+              <div class="select-wrap">
+                <select id="medical-blood" aria-describedby="medical-status">
+                  <option value="">Unknown / Not specified</option>
+                  <option value="A+" {{if eq .User.BloodType "A+"}}selected{{end}}>A+</option>
+                  <option value="A-" {{if eq .User.BloodType "A-"}}selected{{end}}>A-</option>
+                  <option value="B+" {{if eq .User.BloodType "B+"}}selected{{end}}>B+</option>
+                  <option value="B-" {{if eq .User.BloodType "B-"}}selected{{end}}>B-</option>
+                  <option value="AB+" {{if eq .User.BloodType "AB+"}}selected{{end}}>AB+</option>
+                  <option value="AB-" {{if eq .User.BloodType "AB-"}}selected{{end}}>AB-</option>
+                  <option value="O+" {{if eq .User.BloodType "O+"}}selected{{end}}>O+</option>
+                  <option value="O-" {{if eq .User.BloodType "O-"}}selected{{end}}>O-</option>
+                </select>
+              </div>
+
+              <label for="medical-allergies">Known allergies</label>
+              <input id="medical-allergies" type="text" maxlength="500" placeholder="e.g. Penicillin, Peanuts, Latex" value="{{.User.Allergies}}" aria-describedby="medical-status">
+
+              <label for="medical-medications">Current medications</label>
+              <input id="medical-medications" type="text" maxlength="500" placeholder="e.g. Asthma inhaler, Insulin, Aspirin" value="{{.User.Medications}}" aria-describedby="medical-status">
+
+              <label for="medical-notes">Medical conditions & notes</label>
+              <textarea id="medical-notes" rows="3" maxlength="1000" placeholder="e.g. Type 1 Diabetic, Asthma, Epilepsy, Pacemaker" aria-describedby="medical-status">{{.User.MedicalNotes}}</textarea>
+
+              <div class="setting-row">
+                <label for="medical-share">Include Medical ID in prepared text alerts</label>
+                <input id="medical-share" type="checkbox" {{if .User.ShareMedical}}checked{{end}}>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="action">Save Medical ID</button>
+              </div>
+              <p id="medical-status" class="status" role="status"></p>
             </form>
           </section>
 
@@ -547,6 +686,10 @@
         <a id="text-link" class="action outline" hidden><span id="text-label">Text</span></a>
         <button type="button" id="copy-alert" class="action outline">Copy the message</button>
         <p id="no-contact" class="small-note">Add an emergency contact in Contacts to enable a text message.</p>
+        <div class="overlay-emergency-tools">
+          <button type="button" id="overlay-siren" class="action outline">🔊 Sound siren</button>
+          <button type="button" id="overlay-strobe" class="action outline">⚡ Flash strobe</button>
+        </div>
         <button id="close-alert" type="button" class="action outline">Close</button>
       </div>
     </div>
@@ -556,6 +699,28 @@
   <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Picture preview" hidden>
     <button type="button" id="lightbox-close" class="lightbox-close" aria-label="Close picture preview">Close</button>
     <img id="lightbox-image" alt="Preview of the selected picture">
+  </div>
+
+  <!-- ------------------------------------------- legal & info modal ----- -->
+  <div id="legal-modal" class="modal-dialog-backdrop" role="dialog" aria-modal="true" aria-labelledby="legal-modal-title" hidden>
+    <div class="modal-dialog-panel">
+      <div class="modal-dialog-header">
+        <h3 id="legal-modal-title">Information</h3>
+        <button type="button" id="legal-modal-close" class="modal-close-btn" aria-label="Close dialog">&times;</button>
+      </div>
+      <div id="legal-modal-body" class="modal-dialog-body"></div>
+    </div>
+  </div>
+
+  <!-- ------------------------------------------- medical id modal ------- -->
+  <div id="medical-modal" class="modal-dialog-backdrop" role="dialog" aria-modal="true" aria-labelledby="medical-modal-title" hidden>
+    <div class="modal-dialog-panel">
+      <div class="modal-dialog-header">
+        <h3 id="medical-modal-title">Emergency Medical ID</h3>
+        <button type="button" id="medical-modal-close" class="modal-close-btn" aria-label="Close dialog">&times;</button>
+      </div>
+      <div id="medical-modal-body" class="modal-dialog-body"></div>
+    </div>
   </div>
 
   <script id="bootstrap" type="application/json">{{.Bootstrap}}</script>

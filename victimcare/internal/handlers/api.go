@@ -223,6 +223,84 @@ func (s *Server) handleUpdateProfile(w http.ResponseWriter, r *http.Request) {
 	})(w, r)
 }
 
+type medicalRequest struct {
+	BloodType    string `json:"bloodType"`
+	Allergies    string `json:"allergies"`
+	Medications  string `json:"medications"`
+	MedicalNotes string `json:"medicalNotes"`
+	ShareMedical *bool  `json:"shareMedical"`
+}
+
+func (s *Server) handleGetMedical(w http.ResponseWriter, r *http.Request) {
+	s.requireAuth(func(w http.ResponseWriter, r *http.Request) {
+		session := sessionFrom(r)
+		user := session.User
+		writeJSON(w, http.StatusOK, map[string]any{
+			"medical": models.MedicalProfile{
+				BloodType:    user.BloodType,
+				Allergies:    user.Allergies,
+				Medications:  user.Medications,
+				MedicalNotes: user.MedicalNotes,
+				ShareMedical: user.ShareMedical,
+			},
+		})
+	})(w, r)
+}
+
+func (s *Server) handleUpdateMedical(w http.ResponseWriter, r *http.Request) {
+	s.requireCSRF(func(w http.ResponseWriter, r *http.Request) {
+		var req medicalRequest
+		if err := decodeJSON(r, &req); err != nil {
+			writeError(w, http.StatusBadRequest, "We could not read that request. Please try again.", "")
+			return
+		}
+		session := sessionFrom(r)
+		user := session.User
+
+		bloodType := strings.TrimSpace(req.BloodType)
+		if len(bloodType) > 20 {
+			writeError(w, http.StatusBadRequest, "Blood type is too long.", "bloodType")
+			return
+		}
+		allergies := strings.TrimSpace(req.Allergies)
+		if len(allergies) > 500 {
+			writeError(w, http.StatusBadRequest, "Allergies list is too long.", "allergies")
+			return
+		}
+		medications := strings.TrimSpace(req.Medications)
+		if len(medications) > 500 {
+			writeError(w, http.StatusBadRequest, "Medications list is too long.", "medications")
+			return
+		}
+		notes := strings.TrimSpace(req.MedicalNotes)
+		if len(notes) > 1000 {
+			writeError(w, http.StatusBadRequest, "Medical notes are too long.", "medicalNotes")
+			return
+		}
+		shareMedical := user.ShareMedical
+		if req.ShareMedical != nil {
+			shareMedical = *req.ShareMedical
+		}
+
+		updated, err := s.store.UpdateMedicalProfile(r.Context(), user.ID, bloodType, allergies, medications, notes, shareMedical)
+		if err != nil {
+			writeError(w, http.StatusInternalServerError, "We could not save your medical profile.", "")
+			return
+		}
+		session.User = updated
+		writeJSON(w, http.StatusOK, map[string]any{
+			"medical": models.MedicalProfile{
+				BloodType:    updated.BloodType,
+				Allergies:    updated.Allergies,
+				Medications:  updated.Medications,
+				MedicalNotes: updated.MedicalNotes,
+				ShareMedical: updated.ShareMedical,
+			},
+			"user": s.publicUser(r.Context(), updated),
+		})
+	})(w, r)
+}
+
 type settingsRequest struct {
 	Theme         string `json:"theme"`
 	Motion        *bool  `json:"motion"`
@@ -665,6 +743,27 @@ func (s *Server) handleClearIncidents(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		writeJSON(w, http.StatusOK, map[string]any{"incidents": []models.Incident{}})
+	})(w, r)
+}
+
+func (s *Server) handleDeleteSingleIncident(w http.ResponseWriter, r *http.Request) {
+	s.requireCSRF(func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+		if err != nil || id <= 0 {
+			writeError(w, http.StatusBadRequest, "Invalid report id.", "")
+			return
+		}
+		session := sessionFrom(r)
+		if err := s.store.DeleteIncident(r.Context(), session.User.ID, id); err != nil {
+			if errors.Is(err, store.ErrNotFound) {
+				writeError(w, http.StatusNotFound, "Report not found.", "")
+				return
+			}
+			writeError(w, http.StatusInternalServerError, "We could not delete that report. Please try again.", "")
+			return
+		}
+		reports, _ := s.store.Incidents(r.Context(), session.User.ID, 20)
+		writeJSON(w, http.StatusOK, map[string]any{"incidents": reports})
 	})(w, r)
 }
 

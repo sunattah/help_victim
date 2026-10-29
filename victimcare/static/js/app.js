@@ -358,7 +358,18 @@
     if (position) {
       location = 'https://maps.google.com/?q=' + position.coords.latitude + ',' + position.coords.longitude;
     }
-    return name + ' needs help. ' + kind + '. ' + (note ? note + ' ' : '') + 'Location: ' + location;
+    let msg = name + ' needs help. ' + kind + '. ' + (note ? note + ' ' : '') + 'Location: ' + location;
+    if (state.user && state.user.shareMedical) {
+      const parts = [];
+      if (state.user.bloodType) parts.push('Blood: ' + state.user.bloodType);
+      if (state.user.allergies) parts.push('Allergies: ' + state.user.allergies);
+      if (state.user.medications) parts.push('Meds: ' + state.user.medications);
+      if (state.user.medicalNotes) parts.push('Notes: ' + state.user.medicalNotes);
+      if (parts.length > 0) {
+        msg += ' [Med ID: ' + parts.join(', ') + ']';
+      }
+    }
+    return msg;
   }
 
   async function prepareAlert(kind, note) {
@@ -460,23 +471,85 @@
     const list = $('reports-list');
     if (!list) return;
     list.innerHTML = '';
-    $('reports-empty').hidden = state.reports.length > 0;
+    const emptyNode = $('reports-empty');
+    if (emptyNode) emptyNode.hidden = state.reports.length > 0;
+    const exportBtn = $('export-reports-btn');
+    if (exportBtn) exportBtn.hidden = state.reports.length === 0;
+
     state.reports.forEach((report) => {
       const card = document.createElement('article');
       card.className = 'report-card';
+      card.dataset.id = report.id;
+
+      const topRow = document.createElement('div');
+      topRow.className = 'report-card-top';
 
       const type = document.createElement('strong');
       type.textContent = report.kind;
 
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'link-button danger delete-single-report';
+      delBtn.dataset.id = report.id;
+      delBtn.textContent = 'Delete';
+      delBtn.addEventListener('click', () => deleteSingleReport(report.id));
+
+      topRow.append(type, delBtn);
+
       const note = document.createElement('span');
       note.textContent = report.note || 'No details';
 
+      const meta = document.createElement('div');
+      meta.className = 'report-meta';
+
       const time = document.createElement('small');
       time.textContent = new Date(report.created_at || report.createdAt || Date.now()).toLocaleString();
+      meta.appendChild(time);
 
-      card.append(type, document.createElement('br'), note, document.createElement('br'), time);
+      if (report.latitude && report.longitude) {
+        const mapLink = document.createElement('a');
+        mapLink.href = 'https://www.google.com/maps?q=' + report.latitude + ',' + report.longitude;
+        mapLink.target = '_blank';
+        mapLink.rel = 'noopener noreferrer';
+        mapLink.className = 'link-button map-link';
+        mapLink.textContent = '📍 View on map';
+        meta.appendChild(mapLink);
+      }
+
+      card.append(topRow, note, meta);
       list.appendChild(card);
     });
+  }
+
+  async function deleteSingleReport(id) {
+    if (!confirm('Delete this report from your history?')) return;
+    try {
+      const result = await api('/api/v1/incidents/' + id, { method: 'DELETE' });
+      state.reports = result.incidents || [];
+      renderReports();
+    } catch (e) {
+      alert(e.message || 'Could not delete report.');
+    }
+  }
+
+  function exportReportsCSV() {
+    if (!state.reports || !state.reports.length) return;
+    let csv = 'ID,Type,Description,Latitude,Longitude,Date\n';
+    state.reports.forEach((r) => {
+      const safeNote = '"' + (r.note || '').replace(/"/g, '""') + '"';
+      const safeKind = '"' + (r.kind || '').replace(/"/g, '""') + '"';
+      const lat = r.latitude !== null && r.latitude !== undefined ? r.latitude : '';
+      const lng = r.longitude !== null && r.longitude !== undefined ? r.longitude : '';
+      const date = '"' + (r.created_at || r.createdAt || '') + '"';
+      csv += `${r.id},${safeKind},${safeNote},${lat},${lng},${date}\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'victimcare-incidents.csv';
+    link.click();
+    URL.revokeObjectURL(url);
   }
 
   /* ----------------------------------------------------------- contacts */
@@ -661,6 +734,24 @@
       $('profile-password').value = '';
       updateAvatarPreview();
       setStatus(status, 'Profile updated.', false);
+    } catch (error) {
+      setStatus(status, error.message, true);
+    }
+  }
+
+  async function saveMedicalProfile(event) {
+    event.preventDefault();
+    const status = $('medical-status');
+    try {
+      const result = await putJSON('/api/v1/users/me/medical', {
+        bloodType: $('medical-blood').value,
+        allergies: $('medical-allergies').value.trim(),
+        medications: $('medical-medications').value.trim(),
+        medicalNotes: $('medical-notes').value.trim(),
+        shareMedical: $('medical-share').checked
+      });
+      state.user = result.user;
+      setStatus(status, 'Medical ID updated.', false);
     } catch (error) {
       setStatus(status, error.message, true);
     }
@@ -1108,19 +1199,383 @@
       if (event.target === $('lightbox')) closeLightbox();
     });
 
+    const medForm = $('medical-form');
+    if (medForm) medForm.addEventListener('submit', saveMedicalProfile);
+
+    const qeBtn = $('quick-exit');
+    if (qeBtn) qeBtn.addEventListener('click', triggerQuickExit);
+
+    const sirenBtn = $('toggle-siren');
+    if (sirenBtn) sirenBtn.addEventListener('click', toggleSiren);
+    const overlaySiren = $('overlay-siren');
+    if (overlaySiren) overlaySiren.addEventListener('click', toggleSiren);
+
+    const strobeBtn = $('toggle-strobe');
+    if (strobeBtn) strobeBtn.addEventListener('click', toggleStrobe);
+    const overlayStrobe = $('overlay-strobe');
+    if (overlayStrobe) overlayStrobe.addEventListener('click', toggleStrobe);
+
+    const timerStart = $('start-safety-timer');
+    if (timerStart) timerStart.addEventListener('click', startSafetyTimer);
+    const timerSafe = $('safety-timer-safe');
+    if (timerSafe) timerSafe.addEventListener('click', stopSafetyTimer);
+    const timerExtend = $('safety-timer-extend');
+    if (timerExtend) timerExtend.addEventListener('click', extendSafetyTimer);
+
+    document.querySelectorAll('.timer-preset').forEach((preset) => {
+      preset.addEventListener('click', () => {
+        document.querySelectorAll('.timer-preset').forEach((p) => p.classList.remove('is-selected'));
+        preset.classList.add('is-selected');
+      });
+    });
+
+    const cprBtn = $('toggle-cpr-metronome');
+    if (cprBtn) cprBtn.addEventListener('click', toggleCprMetronome);
+
+    const aidSearch = $('aid-search');
+    if (aidSearch) aidSearch.addEventListener('input', (e) => filterGuides(e.target.value));
+
+    const exportBtn = $('export-reports-btn');
+    if (exportBtn) exportBtn.addEventListener('click', exportReportsCSV);
+
+    const medViewBtn = $('view-medical-btn');
+    if (medViewBtn) medViewBtn.addEventListener('click', openMedicalModal);
+
+    const medCloseBtn = $('medical-modal-close');
+    if (medCloseBtn) medCloseBtn.addEventListener('click', () => { $('medical-modal').hidden = true; });
+    $('medical-modal').addEventListener('click', (e) => {
+      if (e.target === $('medical-modal')) $('medical-modal').hidden = true;
+    });
+
+    const legalCloseBtn = $('legal-modal-close');
+    if (legalCloseBtn) legalCloseBtn.addEventListener('click', () => { $('legal-modal').hidden = true; });
+    $('legal-modal').addEventListener('click', (e) => {
+      if (e.target === $('legal-modal')) $('legal-modal').hidden = true;
+    });
+
     document.querySelectorAll('[data-doc]').forEach((link) => {
       link.addEventListener('click', (event) => {
         event.preventDefault();
-        setStatus($('about-note'), 'The ' + link.dataset.doc + ' document is part of the full release of this app.', false);
+        openLegalDoc(link.dataset.doc);
       });
     });
 
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
-        if (!$('lightbox').hidden) closeLightbox();
+        if (isStrobeOn) stopStrobe();
+        else if (!$('legal-modal').hidden) $('legal-modal').hidden = true;
+        else if (!$('medical-modal').hidden) $('medical-modal').hidden = true;
+        else if (!$('lightbox').hidden) closeLightbox();
         else if (!$('overlay').hidden) closeOverlay();
+        else triggerQuickExit();
       }
     });
+  }
+
+  /* ------------------------------------------- emergency tools & safety */
+
+  let audioCtx = null;
+  let sirenOsc = null;
+  let sirenGain = null;
+  let sirenInterval = null;
+  let isSirenOn = false;
+
+  function initAudio() {
+    if (!audioCtx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) audioCtx = new AudioCtx();
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
+
+  function triggerQuickExit() {
+    stopSiren();
+    stopStrobe();
+    stopCprMetronome();
+    stopSafetyTimer();
+    window.location.replace('https://www.google.com');
+  }
+
+  function toggleSiren() {
+    if (isSirenOn) stopSiren();
+    else startSiren();
+  }
+
+  function startSiren() {
+    initAudio();
+    if (!audioCtx) return;
+    isSirenOn = true;
+
+    try {
+      sirenOsc = audioCtx.createOscillator();
+      sirenGain = audioCtx.createGain();
+      sirenOsc.type = 'sawtooth';
+      sirenGain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+
+      sirenOsc.connect(sirenGain);
+      sirenGain.connect(audioCtx.destination);
+      sirenOsc.start();
+
+      let high = false;
+      sirenOsc.frequency.setValueAtTime(700, audioCtx.currentTime);
+      sirenInterval = setInterval(() => {
+        if (!isSirenOn || !audioCtx) return;
+        const targetFreq = high ? 700 : 1100;
+        sirenOsc.frequency.exponentialRampToValueAtTime(targetFreq, audioCtx.currentTime + 0.35);
+        high = !high;
+      }, 400);
+
+      updateSirenUI(true);
+    } catch (e) {
+      console.warn('Audio error:', e);
+    }
+  }
+
+  function stopSiren() {
+    isSirenOn = false;
+    if (sirenInterval) {
+      clearInterval(sirenInterval);
+      sirenInterval = null;
+    }
+    if (sirenOsc) {
+      try {
+        sirenOsc.stop();
+        sirenOsc.disconnect();
+      } catch (e) {}
+      sirenOsc = null;
+    }
+    updateSirenUI(false);
+  }
+
+  function updateSirenUI(active) {
+    const mainLabel = $('siren-label');
+    if (mainLabel) mainLabel.textContent = active ? 'Stop siren' : 'Sound siren';
+    const overlayBtn = $('overlay-siren');
+    if (overlayBtn) overlayBtn.textContent = active ? '🔇 Stop siren' : '🔊 Sound siren';
+    const sirenIcon = $('siren-icon');
+    if (sirenIcon) sirenIcon.textContent = active ? '🔇' : '🔊';
+  }
+
+  let isStrobeOn = false;
+  let strobeEl = null;
+
+  function toggleStrobe() {
+    if (isStrobeOn) stopStrobe();
+    else startStrobe();
+  }
+
+  function startStrobe() {
+    if (strobeEl) return;
+    isStrobeOn = true;
+    strobeEl = document.createElement('div');
+    strobeEl.className = 'strobe-screen';
+    strobeEl.setAttribute('aria-label', 'Screen strobe flashing. Tap to stop.');
+
+    const hint = document.createElement('div');
+    hint.className = 'strobe-exit-hint';
+    hint.textContent = '⚡ Tap anywhere to stop strobe';
+    strobeEl.appendChild(hint);
+
+    strobeEl.addEventListener('click', stopStrobe);
+    document.body.appendChild(strobeEl);
+    updateStrobeUI(true);
+  }
+
+  function stopStrobe() {
+    isStrobeOn = false;
+    if (strobeEl && strobeEl.parentNode) {
+      strobeEl.parentNode.removeChild(strobeEl);
+    }
+    strobeEl = null;
+    updateStrobeUI(false);
+  }
+
+  function updateStrobeUI(active) {
+    const mainLabel = $('strobe-label');
+    if (mainLabel) mainLabel.textContent = active ? 'Stop strobe' : 'Flash strobe';
+    const overlayBtn = $('overlay-strobe');
+    if (overlayBtn) overlayBtn.textContent = active ? '⚡ Stop strobe' : '⚡ Flash strobe';
+  }
+
+  let safetyTimer = null;
+  let safetySecondsLeft = 900;
+
+  function formatTimer(secs) {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  function startSafetyTimer() {
+    stopSafetyTimer();
+    const activeChip = document.querySelector('.timer-preset.is-selected');
+    const mins = activeChip ? parseInt(activeChip.dataset.minutes, 10) : 15;
+    safetySecondsLeft = mins * 60;
+
+    $('safety-timer-setup').hidden = true;
+    $('safety-timer-active').hidden = false;
+    $('safety-timer-display').textContent = formatTimer(safetySecondsLeft);
+
+    safetyTimer = setInterval(() => {
+      safetySecondsLeft--;
+      if (safetySecondsLeft <= 0) {
+        stopSafetyTimer();
+        onSafetyTimerExpired();
+      } else {
+        $('safety-timer-display').textContent = formatTimer(safetySecondsLeft);
+      }
+    }, 1000);
+  }
+
+  function stopSafetyTimer() {
+    if (safetyTimer) {
+      clearInterval(safetyTimer);
+      safetyTimer = null;
+    }
+    const setup = $('safety-timer-setup');
+    const active = $('safety-timer-active');
+    if (setup) setup.hidden = false;
+    if (active) active.hidden = true;
+  }
+
+  function extendSafetyTimer() {
+    safetySecondsLeft += 300;
+    if ($('safety-timer-display')) {
+      $('safety-timer-display').textContent = formatTimer(safetySecondsLeft);
+    }
+  }
+
+  function onSafetyTimerExpired() {
+    startSiren();
+    if (state.user.vibrate && navigator.vibrate) navigator.vibrate([400, 200, 400]);
+    prepareAlert('SOS emergency', 'Safety check-in timer expired');
+  }
+
+  let cprInterval = null;
+  let isCprOn = false;
+
+  function toggleCprMetronome() {
+    if (isCprOn) stopCprMetronome();
+    else startCprMetronome();
+  }
+
+  function startCprMetronome() {
+    initAudio();
+    isCprOn = true;
+    const label = $('cpr-metronome-label');
+    if (label) label.textContent = 'Stop Metronome';
+    const heart = $('metronome-heart');
+    if (heart) heart.classList.add('pulse');
+
+    playMetronomeTick();
+    cprInterval = setInterval(playMetronomeTick, 545);
+  }
+
+  function stopCprMetronome() {
+    isCprOn = false;
+    if (cprInterval) {
+      clearInterval(cprInterval);
+      cprInterval = null;
+    }
+    const label = $('cpr-metronome-label');
+    if (label) label.textContent = 'Start Metronome (110 BPM)';
+    const heart = $('metronome-heart');
+    if (heart) heart.classList.remove('pulse');
+  }
+
+  function playMetronomeTick() {
+    if (!audioCtx) return;
+    try {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.05);
+    } catch (e) {}
+  }
+
+  function filterGuides(query) {
+    const q = (query || '').toLowerCase().trim();
+    const items = document.querySelectorAll('.guide-item');
+    let visible = 0;
+    items.forEach((item) => {
+      const title = (item.dataset.title || '').toLowerCase();
+      const summary = (item.dataset.summary || '').toLowerCase();
+      const content = item.textContent.toLowerCase();
+      const match = !q || title.includes(q) || summary.includes(q) || content.includes(q);
+      item.hidden = !match;
+      if (match) {
+        visible++;
+        if (q) item.open = true;
+      }
+    });
+    const emptyMsg = $('guides-empty');
+    if (emptyMsg) emptyMsg.hidden = visible > 0;
+  }
+
+  function openMedicalModal() {
+    const body = $('medical-modal-body');
+    if (!body) return;
+    const u = state.user || {};
+    body.innerHTML = `
+      <p><strong>Blood type:</strong> ${u.bloodType || 'Not specified'}</p>
+      <p><strong>Known allergies:</strong> ${u.allergies || 'None listed'}</p>
+      <p><strong>Current medications:</strong> ${u.medications || 'None listed'}</p>
+      <p><strong>Medical conditions & notes:</strong> ${u.medicalNotes || 'None listed'}</p>
+      <p class="muted small-note" style="margin-top: 14px;">Included in prepared emergency SMS alerts: <strong>${u.shareMedical ? 'Yes' : 'No'}</strong></p>
+    `;
+    $('medical-modal').hidden = false;
+  }
+
+  const legalDocs = {
+    terms: {
+      title: 'Terms of Use',
+      html: `
+        <h4>1. Emergency Companion Purpose</h4>
+        <p>Victim Care is an emergency safety companion tool designed to assist individuals in distress. <strong>Victim Care does not replace professional emergency services.</strong> If you or someone around you is in immediate danger, dial your local emergency telephone number immediately.</p>
+        <h4>2. Assisted Communication</h4>
+        <p>This software prepares communications and emergency alerts but does not transmit messages or dial emergency contacts without your direct input and explicit device authorization.</p>
+        <h4>3. Disclaimer of Liability</h4>
+        <p>The application is provided "as is" to the extent permitted by law. We cannot guarantee network connectivity, cellular carrier delivery, or accurate geolocation in all conditions.</p>
+      `
+    },
+    privacy: {
+      title: 'Privacy Notice',
+      html: `
+        <h4>1. Zero Tracking & No Advertising</h4>
+        <p>Victim Care does not track you, sell your information, or load third-party ad networks or tracking analytics.</p>
+        <h4>2. Password & Data Security</h4>
+        <p>All passwords are encrypted using bcrypt hashing before storage. Sessions use cryptographically secure token derivation and CSRF protection.</p>
+        <h4>3. Location Privacy</h4>
+        <p>Your geographic location is requested only when preparing an alert, remains in memory on your device, and is never uploaded to remote servers unless you include it in an incident report.</p>
+      `
+    },
+    accessibility: {
+      title: 'Accessibility Statement',
+      html: `
+        <h4>1. WCAG 2.1 AA Compliance</h4>
+        <p>Victim Care is designed and tested to conform with Web Content Accessibility Guidelines (WCAG) 2.1 Level AA.</p>
+        <h4>2. High Contrast & Theming</h4>
+        <p>A dedicated high contrast mode is provided with contrast ratios exceeding 7:1 for enhanced visual clarity in harsh daylight or emergency conditions.</p>
+        <h4>3. Screen Readers & Reduced Motion</h4>
+        <p>All controls carry descriptive ARIA labels, live alert regions announce countdowns, and all motion animations strictly respect <code>prefers-reduced-motion</code>.</p>
+      `
+    }
+  };
+
+  function openLegalDoc(type) {
+    const doc = legalDocs[type];
+    if (!doc) return;
+    $('legal-modal-title').textContent = doc.title;
+    $('legal-modal-body').innerHTML = doc.html;
+    $('legal-modal').hidden = false;
   }
 
   /* ------------------------------------------------- install and offline */

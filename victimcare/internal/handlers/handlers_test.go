@@ -13,6 +13,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strconv"
 	"testing"
 	"time"
 
@@ -107,6 +108,40 @@ func deleteJSON(t *testing.T, client *http.Client, url, csrf string) (int, map[s
 	resp, err := client.Do(req)
 	if err != nil {
 		t.Fatalf("do request: %v", err)
+	}
+	defer resp.Body.Close()
+	payload := map[string]any{}
+	data, _ := io.ReadAll(resp.Body)
+	json.Unmarshal(data, &payload)
+	return resp.StatusCode, payload
+}
+
+func putJSON(t *testing.T, client *http.Client, url, csrf, body string) (int, map[string]any) {
+	t.Helper()
+	req, err := http.NewRequest(http.MethodPut, url, bytes.NewBufferString(body))
+	if err != nil {
+		t.Fatalf("new request: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	if csrf != "" {
+		req.Header.Set("X-CSRF-Token", csrf)
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatalf("do request: %v", err)
+	}
+	defer resp.Body.Close()
+	payload := map[string]any{}
+	data, _ := io.ReadAll(resp.Body)
+	json.Unmarshal(data, &payload)
+	return resp.StatusCode, payload
+}
+
+func getJSON(t *testing.T, client *http.Client, url string) (int, map[string]any) {
+	t.Helper()
+	resp, err := client.Get(url)
+	if err != nil {
+		t.Fatalf("get request: %v", err)
 	}
 	defer resp.Body.Close()
 	payload := map[string]any{}
@@ -414,8 +449,123 @@ func TestGuidesEndpoint(t *testing.T) {
 		Guides []map[string]any `json:"guides"`
 	}
 	json.NewDecoder(resp.Body).Decode(&payload)
-	if len(payload.Guides) == 0 {
-		t.Fatal("expected first aid guides")
+	if len(payload.Guides) < 10 {
+		t.Fatalf("expected at least 10 first aid guides, got %d", len(payload.Guides))
+	}
+	guideIDs := make(map[string]bool)
+	for _, g := range payload.Guides {
+		if id, ok := g["id"].(string); ok {
+			guideIDs[id] = true
+		}
+	}
+	for _, expectedID := range []string{"bleeding", "burns", "choking", "breathing", "bone", "shock", "anaphylaxis", "poisoning", "seizure", "heatstroke"} {
+		if !guideIDs[expectedID] {
+			t.Errorf("missing guide %s", expectedID)
+		}
+	}
+}
+
+func TestMedicalProfileFlow(t *testing.T) {
+	server, client := newTestServer(t)
+	postJSON(t, client, server.URL+"/api/v1/auth/signup", "", `{
+		"firstName": "Ada",
+		"secondName": "Lovelace",
+		"email": "ada.medical@example.com",
+		"country": "United Kingdom",
+		"state": "England",
+		"nation": "British",
+		"password": "Password123"
+	}`)
+
+	csrf := csrfToken(t, client, server.URL)
+
+	// Get medical profile initially empty
+	status, payload := getJSON(t, client, server.URL+"/api/v1/users/me/medical")
+	if status != http.StatusOK {
+		t.Fatalf("get medical: status %d", status)
+	}
+	med, ok := payload["medical"].(map[string]any)
+	if !ok || med["bloodType"] != "" {
+		t.Fatalf("expected empty initial blood type: %v", payload)
+	}
+
+	// Update medical profile
+	putBody := `{
+		"bloodType": "O+",
+		"allergies": "Penicillin, Peanuts",
+		"medications": "Albuterol inhaler",
+		"medicalNotes": "Mild asthma when running",
+		"shareMedical": true
+	}`
+	status, payload = putJSON(t, client, server.URL+"/api/v1/users/me/medical", csrf, putBody)
+	if status != http.StatusOK {
+		t.Fatalf("put medical status = %d: %v", status, payload)
+	}
+	med = payload["medical"].(map[string]any)
+	if med["bloodType"] != "O+" || med["allergies"] != "Penicillin, Peanuts" || med["shareMedical"] != true {
+		t.Fatalf("unexpected updated medical: %v", med)
+	}
+
+	// Check /api/v1/auth/me has medical fields
+	status, mePayload := getJSON(t, client, server.URL+"/api/v1/auth/me")
+	if status != http.StatusOK {
+		t.Fatalf("get me status = %d", status)
+	}
+	user := mePayload["user"].(map[string]any)
+	if user["bloodType"] != "O+" || user["shareMedical"] != true {
+		t.Fatalf("user in /me missing medical fields: %v", user)
+	}
+}
+
+func TestSingleIncidentDeleteFlow(t *testing.T) {
+	server, client := newTestServer(t)
+	postJSON(t, client, server.URL+"/api/v1/auth/signup", "", `{
+		"firstName": "Grace",
+		"secondName": "Hopper",
+		"email": "grace.incidents@example.com",
+		"country": "United States",
+		"state": "Virginia",
+		"nation": "American",
+		"password": "Password123"
+	}`)
+
+	csrf := csrfToken(t, client, server.URL)
+
+	// Create 2 incidents
+	postJSON(t, client, server.URL+"/api/v1/incidents", csrf, `{"kind": "Accident", "note": "Report 1"}`)
+	_, rep2 := postJSON(t, client, server.URL+"/api/v1/incidents", csrf, `{"kind": "Medical", "note": "Report 2"}`)
+	inc2 := rep2["incident"].(map[string]any)
+	inc2ID := int64(inc2["id"].(float64))
+
+	// Delete incident 2
+	status, payload := deleteJSON(t, client, server.URL+"/api/v1/incidents/"+strconv.FormatInt(inc2ID, 10), csrf)
+	if status != http.StatusOK {
+		t.Fatalf("delete incident status = %d: %v", status, payload)
+	}
+	incidents := payload["incidents"].([]any)
+	if len(incidents) != 1 {
+		t.Fatalf("expected 1 incident after single delete, got %d", len(incidents))
+	}
+
+	// Delete again should return 404
+	status, _ = deleteJSON(t, client, server.URL+"/api/v1/incidents/"+strconv.FormatInt(inc2ID, 10), csrf)
+	if status != http.StatusNotFound {
+		t.Fatalf("expected 404 deleting nonexistent incident, got %d", status)
+	}
+}
+
+func TestRateLimiter(t *testing.T) {
+	rl := NewRateLimiter(3, time.Minute)
+	ip := "192.168.1.100"
+	if !rl.Allow(ip) || !rl.Allow(ip) || !rl.Allow(ip) {
+		t.Fatal("first 3 attempts should be allowed")
+	}
+	if rl.Allow(ip) {
+		t.Fatal("4th attempt should be blocked")
+	}
+	// Different IP should still be allowed
+	if !rl.Allow("192.168.1.101") {
+		t.Fatal("different IP should be allowed")
 	}
 }
 
